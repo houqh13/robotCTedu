@@ -28,5 +28,9 @@ int main()
 	//dcb.StopBits = ONESTOPBIT;
 	SetCommState(hComm, &dcb);
 
+	// clear the buffer
+	PurgeComm(hComm, PURGE_RXCLEAR | PURGE_TXCLEAR);
+
+
 	return 0;
 }
