@@ -28,6 +28,6 @@ DWORD WINAPI Timer::ThreadProc(PVOID pvoid)
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
-	cout << "Thread ends." << endl;
+	std::cout << "Thread ends." << std::endl;
 	return msg.wParam;
 }
