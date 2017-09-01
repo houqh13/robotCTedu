@@ -18,6 +18,7 @@ CommThread::~CommThread()
 bool CommThread::CreateCommThread()
 {
 	CreateThread(NULL, 0, CommThread::ThreadProc, NULL, 0, NULL);
+	return true;
 }
 
 DWORD WINAPI CommThread::ThreadProc(LPVOID lpParameter)
@@ -45,4 +46,6 @@ DWORD WINAPI CommThread::ThreadProc(LPVOID lpParameter)
 
 	// clear the buffer
 	PurgeComm(hComm, PURGE_RXCLEAR | PURGE_TXCLEAR);
+
+	return 0;
 }
