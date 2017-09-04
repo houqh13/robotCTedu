@@ -32,17 +32,25 @@ POSE* getPoses(double r, double alpha)
 	return poses;
 }
 
+
+void CALLBACK TimeProc(HWND hwnd, UINT message, UINT idTimer, DWORD dwTime)
+{
+
+}
+
 int main()
 {
 	double radium = 100;
 	double angle = 15;
 
+	// calculate the poses moved during the scanning
 	POSE* poses = getPoses(radium, angle);
 	for (int i = 0; i <= 180 / angle; i++)
 	{
 		cout << poses[i].x << "	" << poses[i].y << endl;
 	}
 
+	// 
 
 	return 0;
 }
