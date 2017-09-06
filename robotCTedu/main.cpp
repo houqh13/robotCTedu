@@ -1,5 +1,6 @@
 #include <iostream>
 #include <Windows.h>
+#include "sender.h"
 
 using namespace std;
 
@@ -71,21 +72,38 @@ POSE_Q* getPoses(double r, double alpha)
 	return poses_q;
 }
 
-void CALLBACK TimeProc(HWND hwnd, UINT message, UINT idTimer, DWORD dwTime)
-{
-
-}
-
 int main()
 {
 	double radium = 100;
 	double angle = 15;
+	bool isFinished = false;
 
 	// calculate the poses moved during the scanning
 	POSE_Q* poses = getPoses(radium, angle);
-	
 
-	// 
+	// serial port & socket setup
+	Sender server = Sender();
+	if (!(server.serialSetup() && server.socketSetup()))
+	{
+		return 1;
+	}
+
+	// socketAccept()?
+	// start logic
+
+	// main loop
+	while (true)
+	{
+		if (server.isAllReached())
+		{
+			Sleep(2000);
+		}
+		if (isFinished)
+		{
+			break;
+		}
+	}
+	printf("Scanning complete!\n");
 
 	return 0;
 }

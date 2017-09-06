@@ -15,6 +15,7 @@ public:
 	bool socketAccept(int i);
 	void serialRcv();
 	int socketRcv(int i);
+	bool isAllReached();
 
 
 	HANDLE hComm;
@@ -22,4 +23,6 @@ public:
 	SOCKET client[2];
 	char recvData[256];
 	char sendData[256];
+	bool isSerialReached[2];
+	bool isSocketReached[2];
 };

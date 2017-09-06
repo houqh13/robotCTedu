@@ -8,8 +8,12 @@ Sender::Sender()
 	: hComm(INVALID_HANDLE_VALUE)
 	, server(INVALID_SOCKET)
 {
-	client[0] = INVALID_SOCKET;
-	client[1] = INVALID_SOCKET;
+	for (int i = 0; i < 2; i++)
+	{
+		client[i] = INVALID_SOCKET;
+		isSerialReached[i] = false;
+		isSocketReached[i] = false;
+	}
 }
 
 Sender::~Sender()
@@ -45,9 +49,10 @@ bool Sender::socketSetup()
 	bind(server, (SOCKADDR*)&addr, sizeof(SOCKADDR));
 
 	// listen the connection
-	if (error = listen(server, 2))
+	if (error = listen(server, 5))
 	{
 		printf("Listen failed: %d.\n", error);
+		return false;
 	}
 
 	printf("Server socket setup complete!\n");
@@ -77,4 +82,32 @@ void Sender::serialRcv()
 int Sender::socketRcv(int i)
 {
 	return recv(client[i], recvData, 256, 0);
+}
+
+bool Sender::isAllReached()
+{
+	for (int i = 0; i < 2; i++)
+	{
+		if (true)
+		{
+			// serialRcv...
+		}
+		if (socketRcv(i))
+		{
+			if (recvData[0] == 0x7F && recvData[1] == 0x01)
+			{
+				isSocketReached[i] = true;
+			}
+		}
+	}
+	if (isSerialReached[0] && isSerialReached[1] && isSocketReached[0] && isSocketReached[1])
+	{
+		for (int i = 0; i < 2; i++)
+		{
+			isSerialReached[i] = false;
+			isSocketReached[i] = false;
+		}
+		return true;
+	}
+	return false;
 }
