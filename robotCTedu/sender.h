@@ -12,12 +12,14 @@ public:
 public:
 	bool serialSetup();
 	bool socketSetup();
-	bool socketAccept(int i);
+	bool socketAccept();
 	void serialRcv();
 	int socketRcv(int i);
 	bool isAllReached();
+	void serialClose();
+	void socketClose();
 
-
+private:
 	HANDLE hComm;
 	SOCKET server;
 	SOCKET client[2];

@@ -88,7 +88,8 @@ int main()
 		return 1;
 	}
 
-	// socketAccept()?
+	// waiting & accept the connection from robot
+	server.socketAccept();
 	// start logic
 
 	// main loop

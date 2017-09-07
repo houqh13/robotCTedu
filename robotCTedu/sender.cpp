@@ -60,17 +60,37 @@ bool Sender::socketSetup()
 	return true;
 }
 
-bool Sender::socketAccept(int i)
+bool Sender::socketAccept()
 {
 	SOCKADDR_IN addr;
 	int addrlen = sizeof(addr);
-	client[i] = accept(server, (SOCKADDR*)&addr, &addrlen);
+	for (int i = 0; i < 2; i++)
+	{
+		client[i] = accept(server, (SOCKADDR*)&addr, &addrlen);
+		printf("Client[%d] accepts a connection, ip address: %s\n", i, inet_ntoa(addr.sin_addr));
+
+		while (true)
+		{
+			int ret = recv(client[i], recvData, 256, 0);
+			if (ret > 0)
+			{
+				recvData[ret] = 0x00;
+				printf("Data from client[%d] : %s\n", i, recvData);
+				if (recvData[0] == 'A' && recvData[1] == '0')
+				{
+					printf("Robot[%d] setup complete!", i);
+					break;
+				}
+			}
+		}
+	}
+	/*client[i] = accept(server, (SOCKADDR*)&addr, &addrlen);
 	if (client[i] == INVALID_SOCKET)
 	{
 		printf("Client[%d] accept error!\n", i);
 		return false;
 	}
-	printf("Client[%d] accepts a connection, ip address: %s\n", i, inet_ntoa(addr.sin_addr));
+	printf("Client[%d] accepts a connection, ip address: %s\n", i, inet_ntoa(addr.sin_addr));*/
 	return true;
 }
 
@@ -92,9 +112,9 @@ bool Sender::isAllReached()
 		{
 			// serialRcv...
 		}
-		if (socketRcv(i))
+		if (recv(client[i], recvData, 256, 0))
 		{
-			if (recvData[0] == 0x7F && recvData[1] == 0x01)
+			if (recvData[0] == 'A' && recvData[1] == '1')
 			{
 				isSocketReached[i] = true;
 			}
