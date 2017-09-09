@@ -36,7 +36,7 @@ bool Sender::socketSetup()
 		printf("WSAStartup failed: %d.\n", error);
 		return false;
 	}
-	printf("WSAStartup succeed!\n");
+	printf("WSAStartup success!\n");
 
 	// open the socket
 	server = socket(AF_INET, SOCK_STREAM, 0);
@@ -66,11 +66,9 @@ bool Sender::socketAccept()
 	int addrlen = sizeof(addr);
 	for (int i = 0; i < 2; i++)
 	{
-		// accept the link request from the client
 		client[i] = accept(server, (SOCKADDR*)&addr, &addrlen);
 		printf("Client[%d] accepts a connection, ip address: %s\n", i, inet_ntoa(addr.sin_addr));
 
-		// receive the setup complete message from the client
 		while (true)
 		{
 			int ret = recv(client[i], recvData, 256, 0);
@@ -86,6 +84,13 @@ bool Sender::socketAccept()
 			}
 		}
 	}
+	/*client[i] = accept(server, (SOCKADDR*)&addr, &addrlen);
+	if (client[i] == INVALID_SOCKET)
+	{
+		printf("Client[%d] accept error!\n", i);
+		return false;
+	}
+	printf("Client[%d] accepts a connection, ip address: %s\n", i, inet_ntoa(addr.sin_addr));*/
 	return true;
 }
 
@@ -94,24 +99,9 @@ void Sender::serialRcv()
 	//
 }
 
-void Sender::serialSend(int cmd)
+int Sender::socketRcv(int i)
 {
-	//
-}
-
-void Sender::socketSend(double* data)
-{
-	char* flag = "A\r";
-	int len = double2String(data, sendData, 8);
-	for (int i = 0; i < 2; i++)
-	{
-		int byte;
-		byte = send(client[i], flag, 2, 0);		// flag
-		printf("send %d bytes\n", byte);
-		Sleep(20);
-		byte = send(client[i], sendData, len, 0);		// data
-		printf("send %d bytes\n", byte);
-	}
+	return recv(client[i], recvData, 256, 0);
 }
 
 bool Sender::isAllReached()
@@ -140,60 +130,4 @@ bool Sender::isAllReached()
 		return true;
 	}
 	return false;
-}
-
-int Sender::double2String(double* d, char* str, int prec)
-{
-	int len = 0;
-	for (int i = 0; i < 7; i++)
-	{
-		double divide = 1;
-
-		// negative number
-		if (d[i] < 0)
-		{
-			str[len++] = '-';
-			d[i] = 0 - d[i];
-		}
-
-		// get the highest digit of the number
-		while (d[i] / divide > 10)
-		{
-			divide *= 10;
-		}
-
-		bool first = false;
-		while (prec)
-		{
-			int number = int(d[i] / divide);
-			if (!first && number)
-			{
-				first = true;		// first effective number
-			}
-			if (first)
-			{
-				prec--;
-			}
-			str[len++] = number + 48;
-			d[i] -= number * divide;
-			if (divide == 1.0 && prec)
-			{
-				str[len++] = '.';		// decimal point
-			}
-			divide /= 10;
-		}
-
-		// when digit of the number is bigger than precision we want, fill zero in low digit
-		while (divide >= 1)
-		{
-			str[len++] = '0';
-			divide /= 10;
-		}
-
-		str[len++] = ',';		// seperator between two numbers
-	}
-	str[len - 1] = '\r';		// flag for the end
-	str[len] = '\0';
-	printf(str);
-	return len;
 }

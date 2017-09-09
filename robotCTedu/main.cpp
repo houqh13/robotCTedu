@@ -1,5 +1,3 @@
-#define WIN32_LEAN_AND_MEAN
-
 #include <iostream>
 #include <Windows.h>
 #include "sender.h"
@@ -35,13 +33,14 @@ typedef struct __POSE_Q__
 } POSE_Q;
 
 
-POSE_Q* getPoses(double r, double alpha, int number)
+POSE_Q* getPoses(double r, double alpha)
 {
-	POSE_R* poses_r = new POSE_R[number];
-	POSE_Q* poses_q = new POSE_Q[number];
+	int number = int(180 / alpha);
+	POSE_R* poses_r = new POSE_R[number + 1];
+	POSE_Q* poses_q = new POSE_Q[number + 1];
 
 	// calculate coordinate of every point during the scanning
-	for (int i = 0; i < number; i++)
+	for (int i = 0; i <= number; i++)
 	{
 		poses_r[i].x = 0 - r * sin(i * alpha * PI / 180);
 		poses_r[i].y = 0 - r * cos(i * alpha * PI / 180);
@@ -53,7 +52,7 @@ POSE_Q* getPoses(double r, double alpha, int number)
 	}
 
 	// transfer pose variable from Ruler angle to Quaternion
-	for (int i = 0; i < number; i++)
+	for (int i = 0; i <= number; i++)
 	{
 		poses_q[i].x = BCS_X + poses_r[i].x;
 		poses_q[i].y = BCS_Y + poses_r[i].y;
@@ -77,11 +76,10 @@ int main()
 {
 	double radium = 100;
 	double angle = 15;
-	int number = 180 / angle + 1;
 	bool isFinished = false;
 
 	// calculate the poses moved during the scanning
-	POSE_Q* poses = getPoses(radium, angle, number);
+	POSE_Q* poses = getPoses(radium, angle);
 
 	// serial port & socket setup
 	Sender server = Sender();
@@ -95,22 +93,16 @@ int main()
 	// start logic
 
 	// main loop
-	for (int i = 0; i < number; i++)
+	while (true)
 	{
-		double data[7];
-		data[0] = poses[i].x;
-		data[1] = poses[i].y;
-		data[2] = poses[i].z;
-		data[3] = poses[i].q0;
-		data[4] = poses[i].q1;
-		data[5] = poses[i].q2;
-		data[6] = poses[i].q3;
-		server.socketSend(data);
 		if (server.isAllReached())
 		{
 			Sleep(2000);
 		}
-		
+		if (isFinished)
+		{
+			break;
+		}
 	}
 	printf("Scanning complete!\n");
 

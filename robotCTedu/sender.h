@@ -14,21 +14,17 @@ public:
 	bool socketSetup();
 	bool socketAccept();
 	void serialRcv();
-	void serialSend(int i);
-	void socketSend(double* data);
+	int socketRcv(int i);
 	bool isAllReached();
 	void serialClose();
 	void socketClose();
-
-public:
-	int double2String(double* d, char* str, int prec);
 
 private:
 	HANDLE hComm;
 	SOCKET server;
 	SOCKET client[2];
 	char recvData[256];
-	char* sendData;
+	char sendData[256];
 	bool isSerialReached[2];
 	bool isSocketReached[2];
 };
