@@ -22,7 +22,27 @@ Sender::~Sender()
 
 bool Sender::serialSetup()
 {
-	//
+	// create the handle of serial port
+	hComm = CreateFile(L"COM NO.", GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+	if (hComm == INVALID_HANDLE_VALUE)
+	{
+		int error = GetLastError();
+		printf("Open Comm failed with error %d.\n", error);
+		return false;
+	}
+	printf("Open Comm succeed!\n");
+
+	// configure the serial port
+	SetupComm(hComm, 256, 256);
+	DCB dcb;
+	GetCommState(hComm, &dcb);
+	dcb.BaudRate = CBR_9600;		// baud rate 9600
+	dcb.ByteSize = 10;				// 10 data bytes
+	dcb.Parity = NOPARITY;			// no parity bit
+	dcb.StopBits = ONESTOPBIT;		// one stop bit
+	SetCommState(hComm, &dcb);
+	PurgeComm(hComm, PURGE_RXCLEAR | PURGE_TXCLEAR);
+
 	return true;
 }
 

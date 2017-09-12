@@ -21,6 +21,7 @@ typedef struct __POSE_R__
 	double Rx;
 	double Ry;
 	double Rz;
+	double w;		// external axis
 } POSE_R;
 
 typedef struct __POSE_Q__
@@ -32,6 +33,7 @@ typedef struct __POSE_Q__
 	double q1;
 	double q2;
 	double q3;
+	double w;		// external axis
 } POSE_Q;
 
 
@@ -44,11 +46,13 @@ POSE_Q* getPoses(double r, double alpha, int number)
 	for (int i = 0; i < number; i++)
 	{
 		poses_r[i].x = 0 - r * sin(i * alpha * PI / 180);
-		poses_r[i].y = 0 - r * cos(i * alpha * PI / 180);
+		poses_r[i].y = 0.2 * r * cos(i * alpha * PI / 180);
 		poses_r[i].z = 0;
 		poses_r[i].Rx = 0;
 		poses_r[i].Ry = 0;
 		poses_r[i].Rz = (90 - i * alpha) * PI / 180;
+		poses_r[i].w = 0 - 1.2 * r * cos(i * alpha * PI / 180);
+
 		cout << poses_r[i].x << "	" << poses_r[i].y << "	" << poses_r[i].Rz << endl;
 	}
 
@@ -66,6 +70,8 @@ POSE_Q* getPoses(double r, double alpha, int number)
 			+ sin(poses_r[i].Rx / 2) * cos(poses_r[i].Ry / 2) * sin(poses_r[i].Rz / 2);
 		poses_q[i].q3 = cos(poses_r[i].Rx / 2) * cos(poses_r[i].Ry / 2) * sin(poses_r[i].Rz / 2)
 			- sin(poses_r[i].Rx / 2) * sin(poses_r[i].Ry / 2) * cos(poses_r[i].Rz / 2);
+		poses_q[i].w = poses_r[i].w;
+
 		cout << poses_q[i].q0 << "	" << poses_q[i].q1 << "	" << poses_q[i].q2 << "	" << poses_q[i].q3
 			<< "	" << poses_q[i].q0 * poses_q[i].q0 + poses_q[i].q1 * poses_q[i].q1 + poses_q[i].q2 * poses_q[i].q2 + poses_q[i].q3 * poses_q[i].q3 << endl;
 	}
