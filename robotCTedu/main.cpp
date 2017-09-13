@@ -111,6 +111,7 @@ int main()
 		data[4] = poses[i].q1;
 		data[5] = poses[i].q2;
 		data[6] = poses[i].q3;
+		server.serialSend(poses[i].w);
 		server.socketSend(data);
 		if (server.isAllReached())
 		{

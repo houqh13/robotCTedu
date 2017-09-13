@@ -14,7 +14,7 @@ public:
 	bool socketSetup();
 	bool socketAccept();
 	void serialRcv();
-	void serialSend(int i);
+	void serialSend(double w);
 	void socketSend(double* data);
 	bool isAllReached();
 	void serialClose();
@@ -22,13 +22,19 @@ public:
 
 public:
 	int double2String(double* d, char* str, int prec);
+	BYTE calcCheckBit(BYTE* data);
 
 private:
 	HANDLE hComm;
 	SOCKET server;
 	SOCKET client[2];
-	char recvData[256];
-	char* sendData;
+	BYTE serialRecvData[256];
+	BYTE serialSendData[10];
+	char socketRecvData[256];
+	char* socketSendData;
 	bool isSerialReached[2];
 	bool isSocketReached[2];
+	double lastw;
+	DWORD sendBytes;
+	DWORD recvBytes;
 };

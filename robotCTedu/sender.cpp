@@ -4,9 +4,24 @@
 #include "sender.h"
 
 
+// guide & motor parameters
+#define LEAD			5
+#define	DIVIDE_2		2
+#define DIVIDE_4		4
+#define DIVIDE_8		8
+#define DIVIDE_16		16
+#define STEPPR_50		50		// step angle 7.2
+#define STEPPR_100		100		// step angle 3.6
+#define STEPPR_200		200		// step angle 1.8
+#define STEPPR_400		400		// step angle 0.9
+
+
+// construction & destruction
+
 Sender::Sender()
 	: hComm(INVALID_HANDLE_VALUE)
 	, server(INVALID_SOCKET)
+	, lastw(0)
 {
 	for (int i = 0; i < 2; i++)
 	{
@@ -14,11 +29,18 @@ Sender::Sender()
 		isSerialReached[i] = false;
 		isSocketReached[i] = false;
 	}
+	serialSendData[0] = (BYTE)0xFF;
+	serialSendData[1] = (BYTE)0xAA;
+	serialSendData[2] = (BYTE)0x00;
+	serialSendData[8] = (BYTE)0x00;
 }
 
 Sender::~Sender()
 {
 }
+
+
+// communication
 
 bool Sender::serialSetup()
 {
@@ -37,7 +59,7 @@ bool Sender::serialSetup()
 	DCB dcb;
 	GetCommState(hComm, &dcb);
 	dcb.BaudRate = CBR_9600;		// baud rate 9600
-	dcb.ByteSize = 10;				// 10 data bytes
+	dcb.ByteSize = 8;				// 8 bits for one data byte
 	dcb.Parity = NOPARITY;			// no parity bit
 	dcb.StopBits = ONESTOPBIT;		// one stop bit
 	SetCommState(hComm, &dcb);
@@ -93,12 +115,12 @@ bool Sender::socketAccept()
 		// receive the setup complete message from the client
 		while (true)
 		{
-			int ret = recv(client[i], recvData, 256, 0);
+			int ret = recv(client[i], socketRecvData, 256, 0);
 			if (ret > 0)
 			{
-				recvData[ret] = 0x00;
-				printf("Data from client[%d] : %s\n", i, recvData);
-				if (recvData[0] == 'A' && recvData[1] == '0')
+				socketRecvData[ret] = 0x00;
+				printf("Data from client[%d] : %s\n", i, socketRecvData);
+				if (socketRecvData[0] == 'A' && socketRecvData[1] == '0')
 				{
 					printf("Robot[%d] setup complete!", i);
 					break;
@@ -111,25 +133,115 @@ bool Sender::socketAccept()
 
 void Sender::serialRcv()
 {
-	//
+	BYTE* readBuffer;
+	DWORD readBytes;
+	ReadFile(hComm, readBuffer, 256, &readBytes, NULL);
 }
 
-void Sender::serialSend(int cmd)
+void Sender::serialSend(double w)
 {
-	//
+	double distance = w - lastw;
+	
+	// set running distance
+	double temp = abs(distance);
+	int pulse = int(temp * STEPPR_100 * DIVIDE_8 / LEAD);
+	serialSendData[4] = (BYTE)0x03;
+	serialSendData[5] = (BYTE)pulse;
+	serialSendData[6] = (BYTE)(pulse / 256);
+	serialSendData[7] = (BYTE)(pulse / 65536);
+	for (int i = 1; i < 3; i++)
+	{
+		serialSendData[3] = (BYTE)i;
+		serialSendData[9] = calcCheckBit(serialSendData);
+		WriteFile(hComm, &serialSendData, 10, &sendBytes, NULL);
+		while (ReadFile(hComm, serialRecvData, 256, &recvBytes, NULL))
+		{
+			if (serialRecvData[0] == (BYTE)0xFF && serialRecvData[1] == (BYTE)0xAA
+				&& serialRecvData[2] == (BYTE)0x00)
+			{
+				if (serialRecvData[3] == (BYTE)i && serialRecvData[4] == (BYTE)0x03
+					&& serialRecvData[5] == (BYTE)0x00 && serialRecvData[6] == (BYTE)0x00)
+				{
+					printf("Guide %d pulse number is %d.\n", i, pulse);
+					break;
+				}
+			}
+		}
+	}
+	
+	// set move direction, guide 2 is opposite of guide 1
+	serialSendData[4] = (BYTE)0x04;
+	serialSendData[6] = (BYTE)0x32;		// start frequency 50Hz
+	serialSendData[7] = (BYTE)0x00;
+	for (int i = 1; i < 3; i++)
+	{
+		serialSendData[3] = (BYTE)i;
+		if (distance >= 0)
+		{
+			serialSendData[5] = (BYTE)((i + 1) % 2);		// 0 for forward, 1 for backward
+		}
+		else
+		{
+			serialSendData[5] = (BYTE)(i % 2);
+		}
+		serialSendData[9] = calcCheckBit(serialSendData);
+		WriteFile(hComm, &serialSendData, 10, &sendBytes, NULL);
+		while (ReadFile(hComm, serialRecvData, 256, &recvBytes, NULL))
+		{
+			if (serialRecvData[0] == (BYTE)0xFF && serialRecvData[1] == (BYTE)0xAA
+				&& serialRecvData[2] == (BYTE)0x00)
+			{
+				if (serialRecvData[3] == (BYTE)i && serialRecvData[4] == (BYTE)0x04
+					&& serialRecvData[5] == (BYTE)0x00 && serialRecvData[6] == (BYTE)0x00)
+				{
+					if (serialSendData[5] == (BYTE)0x00)
+					{
+						printf("Guide %d will move forward.\n", i);
+					}
+					else
+					{
+						printf("Guide %d will move backward.\n", i);
+					}
+					break;
+				}
+			}
+		}
+	}
+
+	// start moving
+	serialSendData[3] = (BYTE)0x09;
+	serialSendData[4] = (BYTE)0x09;
+	serialSendData[5] = (BYTE)0x00;
+	serialSendData[6] = (BYTE)0x00;
+	serialSendData[7] = (BYTE)0x00;
+	serialSendData[9] = calcCheckBit(serialSendData);
+	WriteFile(hComm, &serialSendData, 10, &sendBytes, NULL);
+	while (ReadFile(hComm, serialRecvData, 256, &recvBytes, NULL))
+	{
+		if (serialRecvData[0] == (BYTE)0xFF && serialRecvData[1] == (BYTE)0xAA
+			&& serialRecvData[2] == (BYTE)0x00)
+		{
+			if (serialRecvData[3] == (BYTE)0x09 && serialRecvData[4] == (BYTE)0x09
+				&& serialRecvData[5] == (BYTE)0x00 && serialRecvData[6] == (BYTE)0x00)
+			{
+				printf("All guide start moving.\n");
+				break;
+			}
+		}
+	}
 }
 
 void Sender::socketSend(double* data)
 {
 	char* flag = "A\r";
-	int len = double2String(data, sendData, 8);
+	int len = double2String(data, socketSendData, 8);
 	for (int i = 0; i < 2; i++)
 	{
 		int byte;
 		byte = send(client[i], flag, 2, 0);		// flag
 		printf("send %d bytes\n", byte);
 		Sleep(20);
-		byte = send(client[i], sendData, len, 0);		// data
+		byte = send(client[i], socketSendData, len, 0);		// data
 		printf("send %d bytes\n", byte);
 	}
 }
@@ -142,9 +254,9 @@ bool Sender::isAllReached()
 		{
 			// serialRcv...
 		}
-		if (recv(client[i], recvData, 256, 0))
+		if (recv(client[i], socketRecvData, 256, 0))
 		{
-			if (recvData[0] == 'A' && recvData[1] == '1')
+			if (socketRecvData[0] == 'A' && socketRecvData[1] == '1')
 			{
 				isSocketReached[i] = true;
 			}
@@ -161,6 +273,9 @@ bool Sender::isAllReached()
 	}
 	return false;
 }
+
+
+// necessary algorithm
 
 int Sender::double2String(double* d, char* str, int prec)
 {
@@ -216,4 +331,14 @@ int Sender::double2String(double* d, char* str, int prec)
 	str[len] = '\0';
 	printf(str);
 	return len;
+}
+
+BYTE Sender::calcCheckBit(BYTE* data)
+{
+	BYTE sum = (BYTE)0;
+	for (int i = 0; i < 9; i++)
+	{
+		sum += data[i];
+	}
+	return sum;
 }
