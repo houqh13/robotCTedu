@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <Windows.h>
-#include "sender.h"
+#include "controller.h"
 
 using namespace std;
 
@@ -90,7 +90,7 @@ int main()
 	POSE_Q* poses = getPoses(radium, angle, number);
 
 	// serial port & socket setup
-	Sender server = Sender();
+	Controller server = Controller();
 	if (!(server.serialSetup() && server.socketSetup()))
 	{
 		return 1;

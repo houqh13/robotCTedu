@@ -1,7 +1,7 @@
 //
 
 #include <iostream>
-#include "sender.h"
+#include "controller.h"
 
 
 // guide & motor parameters
@@ -18,7 +18,7 @@
 
 // construction & destruction
 
-Sender::Sender()
+Controller::Controller()
 	: hComm(INVALID_HANDLE_VALUE)
 	, server(INVALID_SOCKET)
 	, lastw(0)
@@ -35,7 +35,7 @@ Sender::Sender()
 	serialSendData[8] = (BYTE)0x00;
 }
 
-Sender::~Sender()
+Controller::~Controller()
 {
 	CloseHandle(hComm);
 	closesocket(server);
@@ -46,7 +46,7 @@ Sender::~Sender()
 
 // communication
 
-bool Sender::serialSetup()
+bool Controller::serialSetup()
 {
 	// create the handle of serial port
 	hComm = CreateFile(L"COM NO.", GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
@@ -72,7 +72,7 @@ bool Sender::serialSetup()
 	return true;
 }
 
-bool Sender::socketSetup()
+bool Controller::socketSetup()
 {
 	// load Winsock library
 	WSADATA wsaData;
@@ -106,7 +106,7 @@ bool Sender::socketSetup()
 	return true;
 }
 
-bool Sender::socketAccept()
+bool Controller::socketAccept()
 {
 	SOCKADDR_IN addr;
 	int addrlen = sizeof(addr);
@@ -140,7 +140,7 @@ bool Sender::socketAccept()
 	return true;
 }
 
-void Sender::serialSend(double w)
+void Controller::serialSend(double w)
 {
 	double distance = w - lastw;
 	
@@ -227,7 +227,7 @@ void Sender::serialSend(double w)
 	}
 }
 
-void Sender::socketSend(double* data)
+void Controller::socketSend(double* data)
 {
 	char* flag = "A\r";
 	int len = double2String(data, socketSendData, 8);
@@ -242,7 +242,7 @@ void Sender::socketSend(double* data)
 	}
 }
 
-bool Sender::serialReached()
+bool Controller::serialReached()
 {
 	while (ReadFile(hComm, serialRecvData, 256, &recvBytes, NULL))
 	{
@@ -263,7 +263,7 @@ bool Sender::serialReached()
 	return true;
 }
 
-bool Sender::socketReached()
+bool Controller::socketReached()
 {
 	for (int i = 0; i < 2; i++)
 	{
@@ -294,7 +294,7 @@ bool Sender::socketReached()
 
 // necessary algorithm
 
-int Sender::double2String(double* d, char* str, int prec)
+int Controller::double2String(double* d, char* str, int prec)
 {
 	int len = 0;
 	for (int i = 0; i < 7; i++)
@@ -350,7 +350,7 @@ int Sender::double2String(double* d, char* str, int prec)
 	return len;
 }
 
-BYTE Sender::calcCheckBit(BYTE* data)
+BYTE Controller::calcCheckBit(BYTE* data)
 {
 	BYTE sum = (BYTE)0;
 	for (int i = 0; i < 9; i++)

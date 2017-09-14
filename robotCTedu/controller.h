@@ -3,11 +3,11 @@
 #include <WinSock2.h>
 
 
-class Sender
+class Controller
 {
 public:
-	Sender();
-	~Sender();
+	Controller();
+	~Controller();
 
 public:
 	bool serialSetup();
