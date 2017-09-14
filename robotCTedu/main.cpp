@@ -98,7 +98,6 @@ int main()
 
 	// waiting & accept the connection from robot
 	server.socketAccept();
-	// start logic
 
 	// main loop
 	for (int i = 0; i < number; i++)
@@ -112,12 +111,11 @@ int main()
 		data[5] = poses[i].q2;
 		data[6] = poses[i].q3;
 		server.serialSend(poses[i].w);
+		server.serialReached();
 		server.socketSend(data);
-		if (server.isAllReached())
-		{
-			Sleep(2000);
-		}
-		
+		server.socketReached();
+		printf("Scanning...\n");
+		Sleep(2000);
 	}
 	printf("Scanning complete!\n");
 

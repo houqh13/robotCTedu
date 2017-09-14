@@ -37,6 +37,10 @@ Sender::Sender()
 
 Sender::~Sender()
 {
+	CloseHandle(hComm);
+	closesocket(server);
+	closesocket(client[0]);
+	closesocket(client[1]);
 }
 
 
@@ -116,11 +120,16 @@ bool Sender::socketAccept()
 		while (true)
 		{
 			int ret = recv(client[i], socketRecvData, 256, 0);
-			if (ret > 0)
+			if (ret == SOCKET_ERROR)
+			{
+				printf("Receiving data from client[%d] failed!\n", i);
+				Sleep(500);
+			}
+			else if (ret > 0)
 			{
 				socketRecvData[ret] = 0x00;
 				printf("Data from client[%d] : %s\n", i, socketRecvData);
-				if (socketRecvData[0] == 'A' && socketRecvData[1] == '0')
+				if (socketRecvData[0] == 'a' && socketRecvData[1] == '0')
 				{
 					printf("Robot[%d] setup complete!", i);
 					break;
@@ -129,13 +138,6 @@ bool Sender::socketAccept()
 		}
 	}
 	return true;
-}
-
-void Sender::serialRcv()
-{
-	BYTE* readBuffer;
-	DWORD readBytes;
-	ReadFile(hComm, readBuffer, 256, &readBytes, NULL);
 }
 
 void Sender::serialSend(double w)
@@ -157,14 +159,11 @@ void Sender::serialSend(double w)
 		while (ReadFile(hComm, serialRecvData, 256, &recvBytes, NULL))
 		{
 			if (serialRecvData[0] == (BYTE)0xFF && serialRecvData[1] == (BYTE)0xAA
-				&& serialRecvData[2] == (BYTE)0x00)
+				&& serialRecvData[2] == (BYTE)0x00 && serialRecvData[4] == (BYTE)0x03
+				&& serialRecvData[5] == (BYTE)0x00 && serialRecvData[6] == (BYTE)0x00)
 			{
-				if (serialRecvData[3] == (BYTE)i && serialRecvData[4] == (BYTE)0x03
-					&& serialRecvData[5] == (BYTE)0x00 && serialRecvData[6] == (BYTE)0x00)
-				{
-					printf("Guide %d pulse number is %d.\n", i, pulse);
-					break;
-				}
+				printf("Pulse number for guide %d is %d.\n", (int)serialSendData[3], pulse);
+				break;
 			}
 		}
 	}
@@ -189,21 +188,18 @@ void Sender::serialSend(double w)
 		while (ReadFile(hComm, serialRecvData, 256, &recvBytes, NULL))
 		{
 			if (serialRecvData[0] == (BYTE)0xFF && serialRecvData[1] == (BYTE)0xAA
-				&& serialRecvData[2] == (BYTE)0x00)
+				&& serialRecvData[2] == (BYTE)0x00 && serialRecvData[4] == (BYTE)0x04
+				&& serialRecvData[6] == (BYTE)0x00)
 			{
-				if (serialRecvData[3] == (BYTE)i && serialRecvData[4] == (BYTE)0x04
-					&& serialRecvData[5] == (BYTE)0x00 && serialRecvData[6] == (BYTE)0x00)
+				if (serialSendData[5] == (BYTE)0x00)
 				{
-					if (serialSendData[5] == (BYTE)0x00)
-					{
-						printf("Guide %d will move forward.\n", i);
-					}
-					else
-					{
-						printf("Guide %d will move backward.\n", i);
-					}
-					break;
+					printf("Guide %d will move forward.\n", (int)serialSendData[3]);
 				}
+				else
+				{
+					printf("Guide %d will move backward.\n", (int)serialSendData[3]);
+				}
+				break;
 			}
 		}
 	}
@@ -246,32 +242,53 @@ void Sender::socketSend(double* data)
 	}
 }
 
-bool Sender::isAllReached()
+bool Sender::serialReached()
 {
-	for (int i = 0; i < 2; i++)
+	while (ReadFile(hComm, serialRecvData, 256, &recvBytes, NULL))
 	{
-		if (true)
+		if (serialRecvData[0] == (BYTE)0xFF && serialRecvData[1] == (BYTE)0xAA
+			&& serialRecvData[2] == (BYTE)0x00 && serialRecvData[4] == (BYTE)0x09
+			&& serialRecvData[5] == (BYTE)0x01 && serialRecvData[6] == (BYTE)0x00)
 		{
-			// serialRcv...
-		}
-		if (recv(client[i], socketRecvData, 256, 0))
-		{
-			if (socketRecvData[0] == 'A' && socketRecvData[1] == '1')
+			printf("Guide %d finished moving!\n", (int)serialSendData[3]);
+			isSerialReached[(int)serialSendData[3]] = true;
+			if (isSerialReached[0] && isSerialReached[1])
 			{
-				isSocketReached[i] = true;
+				isSerialReached[0] = false;
+				isSerialReached[1] = false;
+				break;
 			}
 		}
 	}
-	if (isSerialReached[0] && isSerialReached[1] && isSocketReached[0] && isSocketReached[1])
+	return true;
+}
+
+bool Sender::socketReached()
+{
+	for (int i = 0; i < 2; i++)
 	{
-		for (int i = 0; i < 2; i++)
+		// receive the move complete message from the client
+		while (true)
 		{
-			isSerialReached[i] = false;
-			isSocketReached[i] = false;
+			int ret = recv(client[i], socketRecvData, 256, 0);
+			if (ret == SOCKET_ERROR)
+			{
+				printf("Receiving data from client[%d] failed!\n", i);
+				Sleep(500);
+			}
+			else if (ret > 0)
+			{
+				socketRecvData[ret] = 0x00;
+				printf("Data from client[%d] : %s\n", i, socketRecvData);
+				if (socketRecvData[0] == 'a' && socketRecvData[1] == '1')
+				{
+					printf("Robot[%d] finished moving!", i);
+					break;
+				}
+			}
 		}
-		return true;
 	}
-	return false;
+	return true;
 }
 
 

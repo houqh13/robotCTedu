@@ -13,10 +13,10 @@ public:
 	bool serialSetup();
 	bool socketSetup();
 	bool socketAccept();
-	void serialRcv();
 	void serialSend(double w);
 	void socketSend(double* data);
-	bool isAllReached();
+	bool serialReached();
+	bool socketReached();
 	void serialClose();
 	void socketClose();
 
