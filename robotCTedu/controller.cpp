@@ -146,7 +146,7 @@ void Controller::serialSend(double w)
 	
 	// set running distance
 	double temp = abs(distance);
-	int pulse = int(temp * STEPPR_100 * DIVIDE_8 / LEAD);
+	int pulse = int(temp * STEPPR_200 * DIVIDE_8 / LEAD);
 	serialSendData[4] = (BYTE)0x03;
 	serialSendData[5] = (BYTE)pulse;
 	serialSendData[6] = (BYTE)(pulse / 256);
