@@ -11,7 +11,7 @@ using namespace std;
 // coordinate of the origin of base coordinate system
 #define BCS_X	500
 #define BCS_Y	0
-#define BCS_Z	500
+#define BCS_Z	600
 
 typedef struct __POSE_R__
 {
@@ -46,7 +46,7 @@ POSE_Q* getPoses(double r, double alpha, int number)
 	for (int i = 0; i < number; i++)
 	{
 		poses_r[i].x = 0 - r * sin(i * alpha * PI / 180);
-		poses_r[i].y = 0.2 * r * cos(i * alpha * PI / 180);
+		poses_r[i].y = 0 - r * cos(i * alpha * PI / 180);
 		poses_r[i].z = 0;
 		poses_r[i].Rx = 0;
 		poses_r[i].Ry = 0;
@@ -72,8 +72,7 @@ POSE_Q* getPoses(double r, double alpha, int number)
 			- sin(poses_r[i].Rx / 2) * sin(poses_r[i].Ry / 2) * cos(poses_r[i].Rz / 2);
 		poses_q[i].w = poses_r[i].w;
 
-		cout << poses_q[i].q0 << "	" << poses_q[i].q1 << "	" << poses_q[i].q2 << "	" << poses_q[i].q3
-			<< "	" << poses_q[i].q0 * poses_q[i].q0 + poses_q[i].q1 * poses_q[i].q1 + poses_q[i].q2 * poses_q[i].q2 + poses_q[i].q3 * poses_q[i].q3 << endl;
+		cout << poses_q[i].q0 << "	" << poses_q[i].q1 << "	" << poses_q[i].q2 << "	" << poses_q[i].q3 << endl;
 	}
 
 	return poses_q;
@@ -81,8 +80,8 @@ POSE_Q* getPoses(double r, double alpha, int number)
 
 int main()
 {
-	double radium = 100;
-	double angle = 15;
+	double radium = 200;
+	double angle = 5;
 	int number = int(180 / angle) + 1;
 	bool isFinished = false;
 
@@ -101,6 +100,23 @@ int main()
 
 	// main loop
 	for (int i = 0; i < number; i++)
+	{
+		double data[7];
+		data[0] = poses[i].x;
+		data[1] = poses[i].y;
+		data[2] = poses[i].z;
+		data[3] = poses[i].q0;
+		data[4] = poses[i].q1;
+		data[5] = poses[i].q2;
+		data[6] = poses[i].q3;
+		server.serialSend(poses[i].w);
+		server.serialReached();
+		server.socketSend(data);
+		server.socketReached();
+		printf("Scanning...\n");
+		Sleep(2000);
+	}
+	for (int i = number - 2; i > 0; i--)
 	{
 		double data[7];
 		data[0] = poses[i].x;

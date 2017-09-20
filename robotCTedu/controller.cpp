@@ -49,7 +49,7 @@ Controller::~Controller()
 bool Controller::serialSetup()
 {
 	// create the handle of serial port
-	hComm = CreateFile(L"COM NO.", GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+	hComm = CreateFile(L"COM1", GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 	if (hComm == INVALID_HANDLE_VALUE)
 	{
 		int error = GetLastError();
@@ -67,6 +67,13 @@ bool Controller::serialSetup()
 	dcb.Parity = NOPARITY;			// no parity bit
 	dcb.StopBits = ONESTOPBIT;		// one stop bit
 	SetCommState(hComm, &dcb);
+	COMMTIMEOUTS timeouts;			// no timeout, return immediately
+	timeouts.ReadIntervalTimeout = MAXDWORD;
+	timeouts.ReadTotalTimeoutConstant = 0;
+	timeouts.ReadTotalTimeoutMultiplier = 0;
+	timeouts.WriteTotalTimeoutConstant = 0;
+	timeouts.WriteTotalTimeoutMultiplier = 0;
+	SetCommTimeouts(hComm, &timeouts);
 	PurgeComm(hComm, PURGE_RXCLEAR | PURGE_TXCLEAR);
 
 	return true;
@@ -89,7 +96,7 @@ bool Controller::socketSetup()
 
 	// bind local address with the socket
 	SOCKADDR_IN addr;
-	addr.sin_addr.S_un.S_addr = inet_addr("input ip address here");	// ip address
+	addr.sin_addr.S_un.S_addr = inet_addr("192.168.2.2");	// ip address
 	addr.sin_family = AF_INET;		// windows only
 	addr.sin_port = htons(6000);	// port number
 	bind(server, (SOCKADDR*)&addr, sizeof(SOCKADDR));
@@ -131,7 +138,8 @@ bool Controller::socketAccept()
 				printf("Data from client[%d] : %s\n", i, socketRecvData);
 				if (socketRecvData[0] == 'a' && socketRecvData[1] == '0')
 				{
-					printf("Robot[%d] setup complete!", i);
+					printf("Robot[%d] setup complete!\n", i);
+					socketRecvData[0] = '\0';
 					break;
 				}
 			}
@@ -143,84 +151,34 @@ bool Controller::socketAccept()
 void Controller::serialSend(double w)
 {
 	double distance = w - lastw;
+	lastw = w;
 	
-	// set running distance
 	double temp = abs(distance);
 	int pulse = int(temp * STEPPR_200 * DIVIDE_8 / LEAD);
-	serialSendData[4] = (BYTE)0x03;
 	serialSendData[5] = (BYTE)pulse;
 	serialSendData[6] = (BYTE)(pulse / 256);
 	serialSendData[7] = (BYTE)(pulse / 65536);
 	for (int i = 1; i < 3; i++)
 	{
 		serialSendData[3] = (BYTE)i;
-		serialSendData[9] = calcCheckBit(serialSendData);
-		WriteFile(hComm, &serialSendData, 10, &sendBytes, NULL);
-		while (ReadFile(hComm, serialRecvData, 256, &recvBytes, NULL))
+		if (distance > 0)
 		{
-			if (serialRecvData[0] == (BYTE)0xFF && serialRecvData[1] == (BYTE)0xAA
-				&& serialRecvData[2] == (BYTE)0x00 && serialRecvData[4] == (BYTE)0x03
-				&& serialRecvData[5] == (BYTE)0x00 && serialRecvData[6] == (BYTE)0x00)
-			{
-				printf("Pulse number for guide %d is %d.\n", (int)serialSendData[3], pulse);
-				break;
-			}
-		}
-	}
-	
-	// set move direction, guide 2 is opposite of guide 1
-	serialSendData[4] = (BYTE)0x04;
-	serialSendData[6] = (BYTE)0x32;		// start frequency 50Hz
-	serialSendData[7] = (BYTE)0x00;
-	for (int i = 1; i < 3; i++)
-	{
-		serialSendData[3] = (BYTE)i;
-		if (distance >= 0)
-		{
-			serialSendData[5] = (BYTE)((i + 1) % 2);		// 0 for forward, 1 for backward
+			serialSendData[4] = (BYTE)((i % 2) * 0x10 + 0x1F);
 		}
 		else
 		{
-			serialSendData[5] = (BYTE)(i % 2);
+			serialSendData[4] = (BYTE)(((i + 1) % 2) * 0x10 + 0x1F);
 		}
 		serialSendData[9] = calcCheckBit(serialSendData);
 		WriteFile(hComm, &serialSendData, 10, &sendBytes, NULL);
-		while (ReadFile(hComm, serialRecvData, 256, &recvBytes, NULL))
+		while (ReadFile(hComm, serialRecvData, 7, &recvBytes, NULL))
 		{
 			if (serialRecvData[0] == (BYTE)0xFF && serialRecvData[1] == (BYTE)0xAA
-				&& serialRecvData[2] == (BYTE)0x00 && serialRecvData[4] == (BYTE)0x04
-				&& serialRecvData[6] == (BYTE)0x00)
-			{
-				if (serialSendData[5] == (BYTE)0x00)
-				{
-					printf("Guide %d will move forward.\n", (int)serialSendData[3]);
-				}
-				else
-				{
-					printf("Guide %d will move backward.\n", (int)serialSendData[3]);
-				}
-				break;
-			}
-		}
-	}
-
-	// start moving
-	serialSendData[3] = (BYTE)0x09;
-	serialSendData[4] = (BYTE)0x09;
-	serialSendData[5] = (BYTE)0x00;
-	serialSendData[6] = (BYTE)0x00;
-	serialSendData[7] = (BYTE)0x00;
-	serialSendData[9] = calcCheckBit(serialSendData);
-	WriteFile(hComm, &serialSendData, 10, &sendBytes, NULL);
-	while (ReadFile(hComm, serialRecvData, 256, &recvBytes, NULL))
-	{
-		if (serialRecvData[0] == (BYTE)0xFF && serialRecvData[1] == (BYTE)0xAA
-			&& serialRecvData[2] == (BYTE)0x00)
-		{
-			if (serialRecvData[3] == (BYTE)0x09 && serialRecvData[4] == (BYTE)0x09
+				&& serialRecvData[2] == (BYTE)0x00 && serialRecvData[4] == serialSendData[4]
 				&& serialRecvData[5] == (BYTE)0x00 && serialRecvData[6] == (BYTE)0x00)
 			{
-				printf("All guide start moving.\n");
+				printf("Guide %d starts moving!\n", (int)serialRecvData[3]);
+				serialRecvData[0] = 0xCC;
 				break;
 			}
 		}
@@ -244,14 +202,15 @@ void Controller::socketSend(double* data)
 
 bool Controller::serialReached()
 {
-	while (ReadFile(hComm, serialRecvData, 256, &recvBytes, NULL))
+	while (ReadFile(hComm, serialRecvData, 7, &recvBytes, NULL))
 	{
 		if (serialRecvData[0] == (BYTE)0xFF && serialRecvData[1] == (BYTE)0xAA
-			&& serialRecvData[2] == (BYTE)0x00 && serialRecvData[4] == (BYTE)0x09
-			&& serialRecvData[5] == (BYTE)0x01 && serialRecvData[6] == (BYTE)0x00)
+			&& serialRecvData[3] == (BYTE)0x3F)
 		{
-			printf("Guide %d finished moving!\n", (int)serialSendData[3]);
-			isSerialReached[(int)serialSendData[3]] = true;
+			printf("Guide %d finished moving! Total pulse number is %d.\n", (int)serialRecvData[2],
+				(int)serialRecvData[4] + 256 * (int)serialRecvData[5] + 65536 * (int)serialRecvData[6]);
+			isSerialReached[(int)serialRecvData[2] - 1] = true;
+			serialRecvData[0] = 0xCC;
 			if (isSerialReached[0] && isSerialReached[1])
 			{
 				isSerialReached[0] = false;
@@ -283,6 +242,7 @@ bool Controller::socketReached()
 				if (socketRecvData[0] == 'a' && socketRecvData[1] == '1')
 				{
 					printf("Robot[%d] finished moving!", i);
+					socketRecvData[0] = '\0';
 					break;
 				}
 			}
@@ -294,12 +254,20 @@ bool Controller::socketReached()
 
 // necessary algorithm
 
-int Controller::double2String(double* d, char* str, int prec)
+int Controller::double2String(double* d, char* str, int precision)
 {
 	int len = 0;
 	for (int i = 0; i < 7; i++)
 	{
 		double divide = 1;
+
+		// zero
+		if (d[i] == 0)
+		{
+			str[len++] = '0';
+			str[len++] = ',';
+			continue;
+		}
 
 		// negative number
 		if (d[i] < 0)
@@ -315,6 +283,7 @@ int Controller::double2String(double* d, char* str, int prec)
 		}
 
 		bool first = false;
+		int prec = precision;
 		while (prec)
 		{
 			int number = int(d[i] / divide);

@@ -21,17 +21,17 @@ public:
 	void socketClose();
 
 public:
-	int double2String(double* d, char* str, int prec);
+	int double2String(double* d, char* str, int precision);
 	BYTE calcCheckBit(BYTE* data);
 
 private:
 	HANDLE hComm;
 	SOCKET server;
 	SOCKET client[2];
-	BYTE serialRecvData[256];
+	BYTE serialRecvData[7];
 	BYTE serialSendData[10];
 	char socketRecvData[256];
-	char* socketSendData;
+	char socketSendData[256];
 	bool isSerialReached[2];
 	bool isSocketReached[2];
 	double lastw;
