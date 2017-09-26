@@ -96,7 +96,7 @@ bool Controller::socketSetup()
 
 	// bind local address with the socket
 	SOCKADDR_IN addr;
-	addr.sin_addr.S_un.S_addr = inet_addr("192.168.2.2");	// ip address
+	addr.sin_addr.S_un.S_addr = inet_addr("192.168.2.5");	// ip address
 	addr.sin_family = AF_INET;		// windows only
 	addr.sin_port = htons(6000);	// port number
 	bind(server, (SOCKADDR*)&addr, sizeof(SOCKADDR));
@@ -241,7 +241,7 @@ bool Controller::socketReached()
 				printf("Data from client[%d] : %s\n", i, socketRecvData);
 				if (socketRecvData[0] == 'a' && socketRecvData[1] == '1')
 				{
-					printf("Robot[%d] finished moving!", i);
+					printf("Robot[%d] finished moving!\n", i);
 					socketRecvData[0] = '\0';
 					break;
 				}

@@ -9,7 +9,7 @@ using namespace std;
 #define PI		3.14159265358979323846
 
 // coordinate of the origin of base coordinate system
-#define BCS_X	500
+#define BCS_X	520
 #define BCS_Y	0
 #define BCS_Z	600
 
@@ -37,23 +37,25 @@ typedef struct __POSE_Q__
 } POSE_Q;
 
 
-POSE_Q* getPoses(double r, double alpha, int number)
+int main()
 {
-	POSE_R* poses_r = new POSE_R[number];
-	POSE_Q* poses_q = new POSE_Q[number];
+	double r = 200;
+	double delta = 5;
+	int number = 36;
 
-	// calculate coordinate of every point during the scanning
+	POSE_R poses_r[36];
+	POSE_Q poses_q[36];
+	
+	// calculate the poses moved during the scanning
 	for (int i = 0; i < number; i++)
 	{
-		poses_r[i].x = 0 - r * sin(i * alpha * PI / 180);
-		poses_r[i].y = 0 - r * cos(i * alpha * PI / 180);
+		poses_r[i].x = 0 - r * sin(i * delta * PI / 180);
+		poses_r[i].y = 0.2 * r * cos(i * delta * PI / 180);
 		poses_r[i].z = 0;
 		poses_r[i].Rx = 0;
 		poses_r[i].Ry = 0;
-		poses_r[i].Rz = (90 - i * alpha) * PI / 180;
-		poses_r[i].w = 0 - 1.2 * r * cos(i * alpha * PI / 180);
-
-		cout << poses_r[i].x << "	" << poses_r[i].y << "	" << poses_r[i].Rz << endl;
+		poses_r[i].Rz = (90 - i * delta) * PI / 180;
+		poses_r[i].w = 0 - 1.2 * r * cos(i * delta * PI / 180);
 	}
 
 	// transfer pose variable from Ruler angle to Quaternion
@@ -71,22 +73,7 @@ POSE_Q* getPoses(double r, double alpha, int number)
 		poses_q[i].q3 = cos(poses_r[i].Rx / 2) * cos(poses_r[i].Ry / 2) * sin(poses_r[i].Rz / 2)
 			- sin(poses_r[i].Rx / 2) * sin(poses_r[i].Ry / 2) * cos(poses_r[i].Rz / 2);
 		poses_q[i].w = poses_r[i].w;
-
-		cout << poses_q[i].q0 << "	" << poses_q[i].q1 << "	" << poses_q[i].q2 << "	" << poses_q[i].q3 << endl;
 	}
-
-	return poses_q;
-}
-
-int main()
-{
-	double radium = 200;
-	double angle = 5;
-	int number = int(180 / angle) + 1;
-	bool isFinished = false;
-
-	// calculate the poses moved during the scanning
-	POSE_Q* poses = getPoses(radium, angle, number);
 
 	// serial port & socket setup
 	Controller server = Controller();
@@ -99,40 +86,37 @@ int main()
 	server.socketAccept();
 
 	// main loop
+	double data[7];
 	for (int i = 0; i < number; i++)
 	{
-		double data[7];
-		data[0] = poses[i].x;
-		data[1] = poses[i].y;
-		data[2] = poses[i].z;
-		data[3] = poses[i].q0;
-		data[4] = poses[i].q1;
-		data[5] = poses[i].q2;
-		data[6] = poses[i].q3;
-		server.serialSend(poses[i].w);
+		printf("Moving to pose[%d]...\n", i);
+		data[0] = poses_q[i].x;
+		data[1] = poses_q[i].y;
+		data[2] = poses_q[i].z;
+		data[3] = poses_q[i].q0;
+		data[4] = poses_q[i].q1;
+		data[5] = poses_q[i].q2;
+		data[6] = poses_q[i].q3;
+		server.serialSend(poses_q[i].w);
 		server.serialReached();
 		server.socketSend(data);
 		server.socketReached();
 		printf("Scanning...\n");
 		Sleep(2000);
 	}
-	for (int i = number - 2; i > 0; i--)
-	{
-		double data[7];
-		data[0] = poses[i].x;
-		data[1] = poses[i].y;
-		data[2] = poses[i].z;
-		data[3] = poses[i].q0;
-		data[4] = poses[i].q1;
-		data[5] = poses[i].q2;
-		data[6] = poses[i].q3;
-		server.serialSend(poses[i].w);
-		server.serialReached();
-		server.socketSend(data);
-		server.socketReached();
-		printf("Scanning...\n");
-		Sleep(2000);
-	}
+
+	printf("Moving to the start pose...\n");
+	data[0] = poses_q[number / 2].x;
+	data[1] = poses_q[number / 2].y;
+	data[2] = poses_q[number / 2].z;
+	data[3] = poses_q[number / 2].q0;
+	data[4] = poses_q[number / 2].q1;
+	data[5] = poses_q[number / 2].q2;
+	data[6] = poses_q[number / 2].q3;
+	server.socketSend(data);
+	server.socketReached();
+	server.serialSend(poses_q[number / 2].w);
+	server.serialReached();
 	printf("Scanning complete!\n");
 
 	return 0;
