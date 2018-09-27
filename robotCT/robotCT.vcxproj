@@ -101,6 +101,8 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="define.h" />
+    <ClInclude Include="ExpressionDlg.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="robotCT.h" />
     <ClInclude Include="robotCTDlg.h" />
@@ -108,6 +110,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ExpressionDlg.cpp" />
     <ClCompile Include="robotCT.cpp" />
     <ClCompile Include="robotCTDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -127,4 +130,9 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="robotCT.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

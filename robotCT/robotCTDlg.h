@@ -4,6 +4,10 @@
 
 #pragma once
 
+#include <vector>
+
+#include "ExpressionDlg.h"
+
 
 // CrobotCTDlg 对话框
 class CrobotCTDlg : public CDialogEx
@@ -29,4 +33,10 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+
+public:
+	std::vector<expUnit> vec_expX;	// 存储x的表达式
+
+public:
+	afx_msg void OnBnClickedButtonX();
 };

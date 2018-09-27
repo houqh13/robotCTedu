@@ -7,6 +7,7 @@
 #include "robotCTDlg.h"
 #include "afxdialogex.h"
 
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -62,6 +63,7 @@ BEGIN_MESSAGE_MAP(CrobotCTDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON_X, &CrobotCTDlg::OnBnClickedButtonX)
 END_MESSAGE_MAP()
 
 
@@ -97,6 +99,7 @@ BOOL CrobotCTDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
+	vec_expX.push_back(expUnit());
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -150,3 +153,16 @@ HCURSOR CrobotCTDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CrobotCTDlg::OnBnClickedButtonX()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CExpressionDlg expDlg;
+	expDlg.vec_expression.assign(vec_expX.begin(), vec_expX.end());
+
+	if (expDlg.DoModal() == IDOK)
+	{
+
+	}
+}
