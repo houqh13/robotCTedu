@@ -35,7 +35,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 public:
-	std::vector<expUnit> vec_expX;	// 存储x的表达式
+	std::vector<int> vec_expX;	// 存储x的表达式
 
 public:
 	afx_msg void OnBnClickedButtonX();

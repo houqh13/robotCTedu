@@ -16,8 +16,15 @@ IMPLEMENT_DYNAMIC(CExpressionDlg, CDialogEx)
 
 CExpressionDlg::CExpressionDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CExpressionDlg::IDD, pParent)
+	, s_expression(_T(""))
 {
-
+	for (int i = 0; i < NUMBER_ANGLE; i++)
+	{
+		ary_the[i] = i * DELTA_ANGLE * PI / 180;
+		ary_sin[i] = sin(ary_the[i]);
+		ary_cos[i] = cos(ary_the[i]);
+		ary_tan[i] = tan(ary_the[i]);
+	}
 }
 
 CExpressionDlg::~CExpressionDlg()
@@ -27,47 +34,301 @@ CExpressionDlg::~CExpressionDlg()
 void CExpressionDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_EDIT_EXP, s_expression);
 }
 
 
 BEGIN_MESSAGE_MAP(CExpressionDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_1, &CExpressionDlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON_2, &CExpressionDlg::OnBnClickedButton2)
+	ON_BN_CLICKED(IDC_BUTTON_3, &CExpressionDlg::OnBnClickedButton3)
+	ON_BN_CLICKED(IDC_BUTTON_4, &CExpressionDlg::OnBnClickedButton4)
+	ON_BN_CLICKED(IDC_BUTTON_5, &CExpressionDlg::OnBnClickedButton5)
+	ON_BN_CLICKED(IDC_BUTTON_6, &CExpressionDlg::OnBnClickedButton6)
+	ON_BN_CLICKED(IDC_BUTTON_7, &CExpressionDlg::OnBnClickedButton7)
+	ON_BN_CLICKED(IDC_BUTTON_8, &CExpressionDlg::OnBnClickedButton8)
+	ON_BN_CLICKED(IDC_BUTTON_9, &CExpressionDlg::OnBnClickedButton9)
+	ON_BN_CLICKED(IDC_BUTTON_0, &CExpressionDlg::OnBnClickedButton0)
+	ON_BN_CLICKED(IDC_BUTTON_P, &CExpressionDlg::OnBnClickedButtonP)
+	ON_BN_CLICKED(IDC_BUTTON_ADD, &CExpressionDlg::OnBnClickedButtonAdd)
+	ON_BN_CLICKED(IDC_BUTTON_SUB, &CExpressionDlg::OnBnClickedButtonSub)
+	ON_BN_CLICKED(IDC_BUTTON_MUL, &CExpressionDlg::OnBnClickedButtonMul)
+	ON_BN_CLICKED(IDC_BUTTON_DIV, &CExpressionDlg::OnBnClickedButtonDiv)
+	ON_BN_CLICKED(IDC_BUTTON_LBR, &CExpressionDlg::OnBnClickedButtonLbr)
+	ON_BN_CLICKED(IDC_BUTTON_RBR, &CExpressionDlg::OnBnClickedButtonRbr)
+	ON_BN_CLICKED(IDC_BUTTON_SIN, &CExpressionDlg::OnBnClickedButtonSin)
+	ON_BN_CLICKED(IDC_BUTTON_COS, &CExpressionDlg::OnBnClickedButtonCos)
+	ON_BN_CLICKED(IDC_BUTTON_TAN, &CExpressionDlg::OnBnClickedButtonTan)
+	ON_BN_CLICKED(IDC_BUTTON_THETA, &CExpressionDlg::OnBnClickedButtonTheta)
+	ON_BN_CLICKED(IDC_BUTTON_CLEAR, &CExpressionDlg::OnBnClickedButtonClear)
+	ON_BN_CLICKED(IDC_BUTTON_BACK, &CExpressionDlg::OnBnClickedButtonBack)
+	ON_BN_CLICKED(IDC_BUTTON_OK, &CExpressionDlg::OnBnClickedButtonOk)
 END_MESSAGE_MAP()
 
 // CExpressionDlg 运算程序
 
 void CExpressionDlg::inputNumber(int number)
 {
-	expUnit lastunit = vec_expression.back();
-	switch (lastunit.type)
+	CString s;
+	s.Format(_T("%d"), number);
+	vec_expression.push_back(number);
+	s_expression += s;
+	UpdateData(FALSE);
+}
+
+
+bool CExpressionDlg::calcExpression()
+{
+	std::array<double, NUMBER_ANGLE> temp;
+	temp.fill(0);
+	stk_value.push(temp);					// 表达式初始值为0
+	bool flag = true;						// 表达式首位
+	
+	// 逐字符识别表达式
+	int length = vec_expression.size();
+	for (int i = 0; i < length; i++)
 	{
-	case EXP_NUM:
-		if (lastunit.value - int(lastunit.value))
+		if (flag)
 		{
-			int digit = 1;
-			int remainder = 10 * (lastunit.value - int(lastunit.value));
-			while (remainder)
+			// 首位或前一位为左括号
+			flag = false;
+			if (vec_expression[0] < EXP_P)					// 数字
 			{
-				digit ++;
-				remainder = 10 * (remainder - int(remainder));
+				stk_value.pop();
+				temp.fill(vec_expression[0]);
+				stk_value.push(temp);
 			}
-			lastunit.value += number * pow(10, -digit);
+			else if (vec_expression[0] == EXP_SIN)			// sin
+			{
+				stk_value.pop();
+				stk_value.push(ary_sin);
+			}
+			else if (vec_expression[0] == EXP_COS)			// cos
+			{
+				stk_value.pop();
+				stk_value.push(ary_cos);
+			}
+			else if (vec_expression[0] == EXP_TAN)			// tan
+			{
+				stk_value.pop();
+				stk_value.push(ary_tan);
+			}
+			else if (vec_expression[0] == EXP_THE)			// theta
+			{
+				stk_value.pop();
+				stk_value.push(ary_the);
+			}
+			else if (vec_expression[0] <= EXP_SUB)			// 加号/减号/小数点
+			{
+				stk_operator.push(vec_expression[0]);
+			}
+			else if (vec_expression[0] == EXP_LBR)			// 左括号
+			{
+				stk_value.pop();
+				stk_operator.push(EXP_LBR);
+				temp.fill(0);
+				stk_value.push(temp);
+				flag = true;			// 左括号后为等效首位
+			}
+			else											// 乘号/除号/右括号
+			{
+				return false;
+			}
 		}
 		else
 		{
-			lastunit.value = lastunit.value * 10 + number;
+			// 非首位
+			if (vec_expression[i] < 10)						// 数字
+			{
+				if (vec_expression[i - 1] < 10)
+				{
+					temp.fill(10 * stk_value.top()[i] + vec_expression[i]);
+					stk_value.pop();
+					stk_value.push(temp);
+				}
+				else if (vec_expression[i - 1] <= EXP_DIV)
+				{
+					temp.fill(vec_expression[i]);
+					stk_value.push(temp);
+				}
+				else
+				{
+					return false;
+				}
+			}
+			else if (vec_expression[i] == EXP_P)			// 小数点
+			{
+				if (stk_operator.top() == EXP_P)
+				{
+					return false;
+				}
+				if (vec_expression[i - 1] < 10)
+				{
+					stk_operator.push(EXP_P);
+				}
+				else if (vec_expression[i - 1] >= EXP_ADD && 
+					vec_expression[i - 1] <= EXP_DIV)
+				{
+					temp.fill(0);
+					stk_value.push(temp);
+					stk_operator.push(EXP_P);
+				}
+				else
+				{
+					return false;
+				}
+			}
+			else if (vec_expression[i] == EXP_ADD || 
+				vec_expression[i] == EXP_SUB)				// 加号/减号
+			{
+				if (vec_expression[i - 1] >= EXP_P && vec_expression[i - 1] <= EXP_DIV)
+				{
+					return false;
+				}
+				while (!(stk_operator.empty() || stk_operator.top() == EXP_LBR))
+				{
+					calculate();
+				}
+				stk_operator.push(vec_expression[i]);
+			}
+			else if (vec_expression[i] == EXP_MUL || 
+				vec_expression[i] == EXP_DIV)				// 乘号/除号
+			{
+				if (vec_expression[i - 1] >= EXP_P && vec_expression[i - 1] <= EXP_DIV)
+				{
+					return false;
+				}
+				if (!(stk_operator.empty() || stk_operator.top() == EXP_LBR || 
+					stk_operator.top() == EXP_ADD || stk_operator.top() == EXP_SUB))
+				{
+					calculate();
+				}
+				stk_operator.push(vec_expression[i]);
+			}
+			else if (vec_expression[i] == EXP_LBR)			// 左括号
+			{
+				if (vec_expression[i - 1] >= EXP_ADD && vec_expression[i - 1] <= EXP_DIV)
+				{
+					stk_operator.push(EXP_LBR);
+					temp.fill(0);
+					stk_value.push(temp);
+					flag = true;			// 左括号后为等效首位
+				}
+				else
+				{
+					return false;
+				}
+			}
+			else if (vec_expression[i] == EXP_RBR)			// 右括号
+			{
+				if (vec_expression[i - 1] >= EXP_P && vec_expression[i - 1] <= EXP_LBR)
+				{
+					return false;
+				}
+				else
+				{
+					while (stk_operator.top() != EXP_LBR)
+					{
+						calculate();
+						if (stk_operator.empty())
+						{
+							return false;
+						}
+					}
+					stk_operator.pop();
+				}
+			}
+			else											// sin/cos/tan/theta
+			{
+				if (vec_expression[i - 1] >= EXP_ADD && vec_expression[i - 1] <= EXP_DIV)
+				{
+					switch (vec_expression[i])
+					{
+					case EXP_SIN:
+						stk_value.push(ary_sin);
+						break;
+					case EXP_COS:
+						stk_value.push(ary_cos);
+						break;
+					case EXP_TAN:
+						stk_value.push(ary_tan);
+						break;
+					case EXP_THE:
+						stk_value.push(ary_the);
+						break;
+					default:
+						break;
+					}
+				}
+				else
+				{
+					return false;
+				}
+			}
 		}
-		vec_expression.pop_back();
-		vec_expression.push_back(lastunit);
-		break;
-	case EXP_OPR:
-		vec_expression.push_back(expUnit(EXP_NUM, double(number)));
-		// 字符串
-		break;
-	case EXP_TRI:
-	default:
-		break;
 	}
+
+	// 识别结束, 计算最后结果
+	if (vec_expression[length - 1] >= EXP_P && vec_expression[length - 1] <= EXP_LBR)
+	{
+		return false;
+	}
+	while (!stk_operator.empty())
+	{
+		if (stk_operator.top() == EXP_LBR)
+		{
+			return false;
+		}
+		calculate();
+	}
+
+	return true;
+}
+
+
+void CExpressionDlg::calculate()
+{
+	std::array<double, NUMBER_ANGLE> first = stk_value.top();
+	stk_value.pop();
+	std::array<double, NUMBER_ANGLE> second = stk_value.top();
+	stk_value.pop();
+	int opr = stk_operator.top();
+	stk_operator.pop();
+	std::array<double, NUMBER_ANGLE> temp;
+	if (opr == EXP_P)
+	{
+		double integer = first[0];
+		double decimal = second[0];
+		while (decimal >= 1)
+		{
+			decimal /= 10;
+		}
+		temp.fill(integer + decimal);
+	}
+	else
+	{
+		for (int i = 0; i < NUMBER_ANGLE; i++)
+		{
+			switch (opr)
+			{
+			case EXP_ADD:
+				temp[i] = second[i] + first[i];
+				break;
+			case EXP_SUB:
+				temp[i] = second[i] - first[i];
+				break;
+			case EXP_MUL:
+				temp[i] = second[i] * first[i];
+				break;
+			case EXP_DIV:
+				temp[i] = second[i] / first[i];
+				break;
+			default:
+				break;
+			}
+		}
+	}
+	stk_value.push(temp);
 }
 
 
@@ -76,4 +337,211 @@ void CExpressionDlg::inputNumber(int number)
 void CExpressionDlg::OnBnClickedButton1()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	inputNumber(1);
+}
+
+
+void CExpressionDlg::OnBnClickedButton2()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	inputNumber(2);
+}
+
+
+void CExpressionDlg::OnBnClickedButton3()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	inputNumber(3);
+}
+
+
+void CExpressionDlg::OnBnClickedButton4()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	inputNumber(4);
+}
+
+
+void CExpressionDlg::OnBnClickedButton5()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	inputNumber(5);
+}
+
+
+void CExpressionDlg::OnBnClickedButton6()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	inputNumber(6);
+}
+
+
+void CExpressionDlg::OnBnClickedButton7()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	inputNumber(7);
+}
+
+
+void CExpressionDlg::OnBnClickedButton8()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	inputNumber(8);
+}
+
+
+void CExpressionDlg::OnBnClickedButton9()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	inputNumber(9);
+}
+
+
+void CExpressionDlg::OnBnClickedButton0()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	inputNumber(0);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonP()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.push_back(EXP_P);
+	s_expression += ".";
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonAdd()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.push_back(EXP_ADD);
+	s_expression += "+";
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonSub()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.push_back(EXP_SUB);
+	s_expression += "-";
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonMul()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.push_back(EXP_MUL);
+	s_expression += "×";
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonDiv()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.push_back(EXP_DIV);
+	s_expression += "÷";
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonLbr()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.push_back(EXP_LBR);
+	s_expression += "(";
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonRbr()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.push_back(EXP_RBR);
+	s_expression += ")";
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonSin()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.push_back(EXP_SIN);
+	s_expression += "sin(θ)";
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonCos()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.push_back(EXP_COS);
+	s_expression += "cos(θ)";
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonTan()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.push_back(EXP_TAN);
+	s_expression += "tan(θ)";
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonTheta()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.push_back(EXP_THE);
+	s_expression += "θ";
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonClear()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.clear();
+	s_expression.Empty();
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonBack()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if (!vec_expression.empty())
+	{
+		if (vec_expression.back() > 20)
+		{
+			s_expression = s_expression.Left(s_expression.GetLength() - 6);
+		}
+		else
+		{
+			s_expression = s_expression.Left(s_expression.GetLength() - 1);
+		}
+		vec_expression.pop_back();
+	}
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonOk()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	bool flag = calcExpression();
+	if (flag)
+	{
+		OnOK();
+	}
+	else
+	{
+		MessageBox(_T("表达式存在语法错误，请输入正确的表达式！"), 
+			_T("Error"), MB_OK | MB_ICONERROR);
+	}
 }

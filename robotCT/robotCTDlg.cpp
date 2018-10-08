@@ -99,7 +99,7 @@ BOOL CrobotCTDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
-	vec_expX.push_back(expUnit());
+	
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -163,6 +163,6 @@ void CrobotCTDlg::OnBnClickedButtonX()
 
 	if (expDlg.DoModal() == IDOK)
 	{
-
+		vec_expX.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
 	}
 }
