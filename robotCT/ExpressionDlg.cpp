@@ -86,6 +86,10 @@ bool CExpressionDlg::calcExpression()
 	
 	// 逐字符识别表达式
 	int length = vec_expression.size();
+	if (length == 0)
+	{
+		return false;
+	}
 	for (int i = 0; i < length; i++)
 	{
 		if (flag)
@@ -97,6 +101,11 @@ bool CExpressionDlg::calcExpression()
 				stk_value.pop();
 				temp.fill(vec_expression[0]);
 				stk_value.push(temp);
+			}
+			else if (vec_expression[0] == EXP_THE)			// theta
+			{
+				stk_value.pop();
+				stk_value.push(ary_the);
 			}
 			else if (vec_expression[0] == EXP_SIN)			// sin
 			{
@@ -112,11 +121,6 @@ bool CExpressionDlg::calcExpression()
 			{
 				stk_value.pop();
 				stk_value.push(ary_tan);
-			}
-			else if (vec_expression[0] == EXP_THE)			// theta
-			{
-				stk_value.pop();
-				stk_value.push(ary_the);
 			}
 			else if (vec_expression[0] <= EXP_SUB)			// 加号/减号/小数点
 			{
@@ -244,6 +248,9 @@ bool CExpressionDlg::calcExpression()
 				{
 					switch (vec_expression[i])
 					{
+					case EXP_THE:
+						stk_value.push(ary_the);
+						break;
 					case EXP_SIN:
 						stk_value.push(ary_sin);
 						break;
@@ -252,9 +259,6 @@ bool CExpressionDlg::calcExpression()
 						break;
 					case EXP_TAN:
 						stk_value.push(ary_tan);
-						break;
-					case EXP_THE:
-						stk_value.push(ary_the);
 						break;
 					default:
 						break;
@@ -333,6 +337,16 @@ void CExpressionDlg::calculate()
 
 
 // CExpressionDlg 消息处理程序
+
+BOOL CExpressionDlg::OnInitDialog()
+{
+	CDialogEx::OnInitDialog();
+
+	// TODO:  在此添加额外的初始化
+	UpdateData(FALSE);
+	return TRUE;
+}
+
 
 void CExpressionDlg::OnBnClickedButton1()
 {
@@ -517,7 +531,7 @@ void CExpressionDlg::OnBnClickedButtonBack()
 	// TODO: 在此添加控件通知处理程序代码
 	if (!vec_expression.empty())
 	{
-		if (vec_expression.back() > 20)
+		if (vec_expression.back() > EXP_THE)
 		{
 			s_expression = s_expression.Left(s_expression.GetLength() - 6);
 		}
@@ -535,6 +549,16 @@ void CExpressionDlg::OnBnClickedButtonOk()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	bool flag = calcExpression();
+
+	while (!stk_operator.empty())
+	{
+		stk_operator.pop();
+	}
+	while (!stk_value.empty())
+	{
+		stk_value.pop();
+	}
+
 	if (flag)
 	{
 		OnOK();

@@ -35,8 +35,24 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 public:
-	std::vector<int> vec_expX;	// 存储x的表达式
+	std::vector<int> vec_expX;		// 存储x坐标的表达式
+	std::vector<int> vec_expY;
+	std::vector<int> vec_expZ;
+	std::vector<int> vec_expRx;
+	std::vector<int> vec_expRy;
+	std::vector<int> vec_expRz;
 
 public:
+	CString s_expX;
+	CString s_expY;
+	CString s_expZ;
+	CString s_expRx;
+	CString s_expRy;
+	CString s_expRz;
 	afx_msg void OnBnClickedButtonX();
+	afx_msg void OnBnClickedButtonY();
+	afx_msg void OnBnClickedButtonZ();
+	afx_msg void OnBnClickedButtonRx();
+	afx_msg void OnBnClickedButtonRy();
+	afx_msg void OnBnClickedButtonRz();
 };

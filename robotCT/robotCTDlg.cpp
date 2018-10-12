@@ -50,6 +50,12 @@ END_MESSAGE_MAP()
 
 CrobotCTDlg::CrobotCTDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CrobotCTDlg::IDD, pParent)
+	, s_expX(_T("0"))
+	, s_expY(_T("0"))
+	, s_expZ(_T("0"))
+	, s_expRx(_T("0"))
+	, s_expRy(_T("0"))
+	, s_expRz(_T("0"))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -57,6 +63,12 @@ CrobotCTDlg::CrobotCTDlg(CWnd* pParent /*=NULL*/)
 void CrobotCTDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_EDIT_X, s_expX);
+	DDX_Text(pDX, IDC_EDIT_Y, s_expY);
+	DDX_Text(pDX, IDC_EDIT_Z, s_expZ);
+	DDX_Text(pDX, IDC_EDIT_RX, s_expRx);
+	DDX_Text(pDX, IDC_EDIT_RY, s_expRy);
+	DDX_Text(pDX, IDC_EDIT_RZ, s_expRz);
 }
 
 BEGIN_MESSAGE_MAP(CrobotCTDlg, CDialogEx)
@@ -64,6 +76,11 @@ BEGIN_MESSAGE_MAP(CrobotCTDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON_X, &CrobotCTDlg::OnBnClickedButtonX)
+	ON_BN_CLICKED(IDC_BUTTON_Y, &CrobotCTDlg::OnBnClickedButtonY)
+	ON_BN_CLICKED(IDC_BUTTON_Z, &CrobotCTDlg::OnBnClickedButtonZ)
+	ON_BN_CLICKED(IDC_BUTTON_RX, &CrobotCTDlg::OnBnClickedButtonRx)
+	ON_BN_CLICKED(IDC_BUTTON_RY, &CrobotCTDlg::OnBnClickedButtonRy)
+	ON_BN_CLICKED(IDC_BUTTON_RZ, &CrobotCTDlg::OnBnClickedButtonRz)
 END_MESSAGE_MAP()
 
 
@@ -99,6 +116,12 @@ BOOL CrobotCTDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
+	vec_expX.push_back(0);
+	vec_expY.push_back(0);
+	vec_expZ.push_back(0);
+	vec_expRx.push_back(0);
+	vec_expRy.push_back(0);
+	vec_expRz.push_back(0);
 	
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
@@ -160,9 +183,92 @@ void CrobotCTDlg::OnBnClickedButtonX()
 	// TODO: 在此添加控件通知处理程序代码
 	CExpressionDlg expDlg;
 	expDlg.vec_expression.assign(vec_expX.begin(), vec_expX.end());
+	expDlg.s_expression = s_expX;
 
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expX.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
+		s_expX = expDlg.s_expression;
 	}
+	UpdateData(FALSE);
+}
+
+
+void CrobotCTDlg::OnBnClickedButtonY()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CExpressionDlg expDlg;
+	expDlg.vec_expression.assign(vec_expY.begin(), vec_expY.end());
+	expDlg.s_expression = s_expY;
+
+	if (expDlg.DoModal() == IDOK)
+	{
+		vec_expY.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
+		s_expY = expDlg.s_expression;
+	}
+	UpdateData(FALSE);
+}
+
+
+void CrobotCTDlg::OnBnClickedButtonZ()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CExpressionDlg expDlg;
+	expDlg.vec_expression.assign(vec_expZ.begin(), vec_expZ.end());
+	expDlg.s_expression = s_expZ;
+
+	if (expDlg.DoModal() == IDOK)
+	{
+		vec_expZ.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
+		s_expZ = expDlg.s_expression;
+	}
+	UpdateData(FALSE);
+}
+
+
+void CrobotCTDlg::OnBnClickedButtonRx()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CExpressionDlg expDlg;
+	expDlg.vec_expression.assign(vec_expRx.begin(), vec_expRx.end());
+	expDlg.s_expression = s_expRx;
+
+	if (expDlg.DoModal() == IDOK)
+	{
+		vec_expRx.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
+		s_expRx = expDlg.s_expression;
+	}
+	UpdateData(FALSE);
+}
+
+
+void CrobotCTDlg::OnBnClickedButtonRy()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CExpressionDlg expDlg;
+	expDlg.vec_expression.assign(vec_expRy.begin(), vec_expRy.end());
+	expDlg.s_expression = s_expRy;
+
+	if (expDlg.DoModal() == IDOK)
+	{
+		vec_expRy.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
+		s_expRy = expDlg.s_expression;
+	}
+	UpdateData(FALSE);
+}
+
+
+void CrobotCTDlg::OnBnClickedButtonRz()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CExpressionDlg expDlg;
+	expDlg.vec_expression.assign(vec_expRz.begin(), vec_expRz.end());
+	expDlg.s_expression = s_expRz;
+
+	if (expDlg.DoModal() == IDOK)
+	{
+		vec_expRz.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
+		s_expRz = expDlg.s_expression;
+	}
+	UpdateData(FALSE);
 }

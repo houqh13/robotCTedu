@@ -26,20 +26,21 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 public:
+	std::array<double, NUMBER_ANGLE> ary_the;		// 各角度的θ值
 	std::array<double, NUMBER_ANGLE> ary_sin;		// 各角度的sin(θ)值
 	std::array<double, NUMBER_ANGLE> ary_cos;		// 各角度的cos(θ)值
 	std::array<double, NUMBER_ANGLE> ary_tan;		// 各角度的tan(θ)值
-	std::array<double, NUMBER_ANGLE> ary_the;		// 各角度的θ值
 	std::array<double, NUMBER_ANGLE> ary_value;		// 表达式计算结果
-	std::vector<int> vec_expression;		// 存储输入的内容
+	std::vector<int> vec_expression;				// 存储输入的内容
 	std::stack<std::array<double, NUMBER_ANGLE>> stk_value;		// 计算表达式的数值栈
-	std::stack<int> stk_operator;			// 计算表达式的运算符栈
+	std::stack<int> stk_operator;					// 计算表达式的运算符栈
 	void inputNumber(int number);
-	bool calcExpression();					// 检查表达式合法性并计算表达式
-	void calculate();						// 运行栈顶的一次运算
+	bool calcExpression();							// 检查表达式合法性并计算表达式
+	void calculate();								// 运行栈顶的一次运算
 
 public:
-	CString s_expression;					// 用于显示的字符串
+	virtual BOOL OnInitDialog();
+	CString s_expression;							// 用于显示的字符串
 	afx_msg void OnBnClickedButton1();
 	afx_msg void OnBnClickedButton2();
 	afx_msg void OnBnClickedButton3();

@@ -21,7 +21,7 @@
 #define EXP_RBR		16
 
 // Èý½Çº¯ÊýÖµ
-#define EXP_SIN		21
-#define EXP_COS		22
-#define EXP_TAN		23
-#define	EXP_THE		24
+#define	EXP_THE		21
+#define EXP_SIN		22
+#define EXP_COS		23
+#define EXP_TAN		24
