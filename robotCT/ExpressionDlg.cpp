@@ -16,7 +16,7 @@ IMPLEMENT_DYNAMIC(CExpressionDlg, CDialogEx)
 
 CExpressionDlg::CExpressionDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CExpressionDlg::IDD, pParent)
-	, s_expression(_T(""))
+	, m_sExp(_T(""))
 {
 	for (int i = 0; i < NUMBER_ANGLE; i++)
 	{
@@ -34,7 +34,7 @@ CExpressionDlg::~CExpressionDlg()
 void CExpressionDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	DDX_Text(pDX, IDC_EDIT_EXP, s_expression);
+	DDX_Text(pDX, IDC_EDIT_EXP, m_sExp);
 }
 
 
@@ -72,7 +72,7 @@ void CExpressionDlg::inputNumber(int number)
 	CString s;
 	s.Format(_T("%d"), number);
 	vec_expression.push_back(number);
-	s_expression += s;
+	m_sExp += s;
 	UpdateData(FALSE);
 }
 
@@ -343,8 +343,21 @@ BOOL CExpressionDlg::OnInitDialog()
 	CDialogEx::OnInitDialog();
 
 	// TODO:  在此添加额外的初始化
+	m_hAccel = LoadAccelerators(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_ACCELERATOR_EXP));
 	UpdateData(FALSE);
 	return TRUE;
+}
+
+
+BOOL CExpressionDlg::PreTranslateMessage(MSG* pMsg)
+{
+	// TODO: 在此添加专用代码和/或调用基类
+	if (TranslateAccelerator(m_hWnd, m_hAccel, pMsg))
+	{
+		return TRUE;
+	}
+
+	return CDialogEx::PreTranslateMessage(pMsg);
 }
 
 
@@ -422,7 +435,7 @@ void CExpressionDlg::OnBnClickedButtonP()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	vec_expression.push_back(EXP_P);
-	s_expression += ".";
+	m_sExp += ".";
 	UpdateData(FALSE);
 }
 
@@ -431,7 +444,7 @@ void CExpressionDlg::OnBnClickedButtonAdd()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	vec_expression.push_back(EXP_ADD);
-	s_expression += "+";
+	m_sExp += "+";
 	UpdateData(FALSE);
 }
 
@@ -440,7 +453,7 @@ void CExpressionDlg::OnBnClickedButtonSub()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	vec_expression.push_back(EXP_SUB);
-	s_expression += "-";
+	m_sExp += "-";
 	UpdateData(FALSE);
 }
 
@@ -449,7 +462,7 @@ void CExpressionDlg::OnBnClickedButtonMul()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	vec_expression.push_back(EXP_MUL);
-	s_expression += "×";
+	m_sExp += "×";
 	UpdateData(FALSE);
 }
 
@@ -458,7 +471,7 @@ void CExpressionDlg::OnBnClickedButtonDiv()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	vec_expression.push_back(EXP_DIV);
-	s_expression += "÷";
+	m_sExp += "÷";
 	UpdateData(FALSE);
 }
 
@@ -467,7 +480,7 @@ void CExpressionDlg::OnBnClickedButtonLbr()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	vec_expression.push_back(EXP_LBR);
-	s_expression += "(";
+	m_sExp += "(";
 	UpdateData(FALSE);
 }
 
@@ -476,7 +489,7 @@ void CExpressionDlg::OnBnClickedButtonRbr()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	vec_expression.push_back(EXP_RBR);
-	s_expression += ")";
+	m_sExp += ")";
 	UpdateData(FALSE);
 }
 
@@ -485,7 +498,7 @@ void CExpressionDlg::OnBnClickedButtonSin()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	vec_expression.push_back(EXP_SIN);
-	s_expression += "sin(θ)";
+	m_sExp += "sin(θ)";
 	UpdateData(FALSE);
 }
 
@@ -494,7 +507,7 @@ void CExpressionDlg::OnBnClickedButtonCos()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	vec_expression.push_back(EXP_COS);
-	s_expression += "cos(θ)";
+	m_sExp += "cos(θ)";
 	UpdateData(FALSE);
 }
 
@@ -503,7 +516,7 @@ void CExpressionDlg::OnBnClickedButtonTan()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	vec_expression.push_back(EXP_TAN);
-	s_expression += "tan(θ)";
+	m_sExp += "tan(θ)";
 	UpdateData(FALSE);
 }
 
@@ -512,7 +525,7 @@ void CExpressionDlg::OnBnClickedButtonTheta()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	vec_expression.push_back(EXP_THE);
-	s_expression += "θ";
+	m_sExp += "θ";
 	UpdateData(FALSE);
 }
 
@@ -521,7 +534,7 @@ void CExpressionDlg::OnBnClickedButtonClear()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	vec_expression.clear();
-	s_expression.Empty();
+	m_sExp.Empty();
 	UpdateData(FALSE);
 }
 
@@ -533,11 +546,11 @@ void CExpressionDlg::OnBnClickedButtonBack()
 	{
 		if (vec_expression.back() > EXP_THE)
 		{
-			s_expression = s_expression.Left(s_expression.GetLength() - 6);
+			m_sExp = m_sExp.Left(m_sExp.GetLength() - 6);
 		}
 		else
 		{
-			s_expression = s_expression.Left(s_expression.GetLength() - 1);
+			m_sExp = m_sExp.Left(m_sExp.GetLength() - 1);
 		}
 		vec_expression.pop_back();
 	}

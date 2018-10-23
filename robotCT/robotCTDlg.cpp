@@ -183,12 +183,12 @@ void CrobotCTDlg::OnBnClickedButtonX()
 	// TODO: 在此添加控件通知处理程序代码
 	CExpressionDlg expDlg;
 	expDlg.vec_expression.assign(vec_expX.begin(), vec_expX.end());
-	expDlg.s_expression = s_expX;
+	expDlg.m_sExp = s_expX;
 
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expX.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		s_expX = expDlg.s_expression;
+		s_expX = expDlg.m_sExp;
 	}
 	UpdateData(FALSE);
 }
@@ -199,12 +199,12 @@ void CrobotCTDlg::OnBnClickedButtonY()
 	// TODO: 在此添加控件通知处理程序代码
 	CExpressionDlg expDlg;
 	expDlg.vec_expression.assign(vec_expY.begin(), vec_expY.end());
-	expDlg.s_expression = s_expY;
+	expDlg.m_sExp = s_expY;
 
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expY.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		s_expY = expDlg.s_expression;
+		s_expY = expDlg.m_sExp;
 	}
 	UpdateData(FALSE);
 }
@@ -215,12 +215,12 @@ void CrobotCTDlg::OnBnClickedButtonZ()
 	// TODO: 在此添加控件通知处理程序代码
 	CExpressionDlg expDlg;
 	expDlg.vec_expression.assign(vec_expZ.begin(), vec_expZ.end());
-	expDlg.s_expression = s_expZ;
+	expDlg.m_sExp = s_expZ;
 
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expZ.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		s_expZ = expDlg.s_expression;
+		s_expZ = expDlg.m_sExp;
 	}
 	UpdateData(FALSE);
 }
@@ -231,12 +231,12 @@ void CrobotCTDlg::OnBnClickedButtonRx()
 	// TODO: 在此添加控件通知处理程序代码
 	CExpressionDlg expDlg;
 	expDlg.vec_expression.assign(vec_expRx.begin(), vec_expRx.end());
-	expDlg.s_expression = s_expRx;
+	expDlg.m_sExp = s_expRx;
 
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expRx.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		s_expRx = expDlg.s_expression;
+		s_expRx = expDlg.m_sExp;
 	}
 	UpdateData(FALSE);
 }
@@ -247,12 +247,12 @@ void CrobotCTDlg::OnBnClickedButtonRy()
 	// TODO: 在此添加控件通知处理程序代码
 	CExpressionDlg expDlg;
 	expDlg.vec_expression.assign(vec_expRy.begin(), vec_expRy.end());
-	expDlg.s_expression = s_expRy;
+	expDlg.m_sExp = s_expRy;
 
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expRy.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		s_expRy = expDlg.s_expression;
+		s_expRy = expDlg.m_sExp;
 	}
 	UpdateData(FALSE);
 }
@@ -263,12 +263,12 @@ void CrobotCTDlg::OnBnClickedButtonRz()
 	// TODO: 在此添加控件通知处理程序代码
 	CExpressionDlg expDlg;
 	expDlg.vec_expression.assign(vec_expRz.begin(), vec_expRz.end());
-	expDlg.s_expression = s_expRz;
+	expDlg.m_sExp = s_expRz;
 
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expRz.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		s_expRz = expDlg.s_expression;
+		s_expRz = expDlg.m_sExp;
 	}
 	UpdateData(FALSE);
 }

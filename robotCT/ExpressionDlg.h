@@ -40,7 +40,9 @@ public:
 
 public:
 	virtual BOOL OnInitDialog();
-	CString s_expression;							// 用于显示的字符串
+	CString m_sExp;									// 用于显示的字符串
+	HACCEL m_hAccel;								// 快捷键句柄
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnBnClickedButton1();
 	afx_msg void OnBnClickedButton2();
 	afx_msg void OnBnClickedButton3();
