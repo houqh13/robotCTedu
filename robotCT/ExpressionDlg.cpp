@@ -65,6 +65,260 @@ BEGIN_MESSAGE_MAP(CExpressionDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_OK, &CExpressionDlg::OnBnClickedButtonOk)
 END_MESSAGE_MAP()
 
+
+// CExpressionDlg 消息处理程序
+
+BOOL CExpressionDlg::OnInitDialog()
+{
+	CDialogEx::OnInitDialog();
+
+	// TODO:  在此添加额外的初始化
+	m_hAccel = LoadAccelerators(
+		AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_ACCELERATOR_EXP));
+	UpdateData(FALSE);
+	return TRUE;
+}
+
+
+BOOL CExpressionDlg::PreTranslateMessage(MSG* pMsg)
+{
+	// TODO: 在此添加专用代码和/或调用基类
+	if (TranslateAccelerator(m_hWnd, m_hAccel, pMsg))
+	{
+		return TRUE;
+	}
+
+	return CDialogEx::PreTranslateMessage(pMsg);
+}
+
+
+void CExpressionDlg::OnBnClickedButton1()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	inputNumber(1);
+}
+
+
+void CExpressionDlg::OnBnClickedButton2()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	inputNumber(2);
+}
+
+
+void CExpressionDlg::OnBnClickedButton3()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	inputNumber(3);
+}
+
+
+void CExpressionDlg::OnBnClickedButton4()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	inputNumber(4);
+}
+
+
+void CExpressionDlg::OnBnClickedButton5()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	inputNumber(5);
+}
+
+
+void CExpressionDlg::OnBnClickedButton6()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	inputNumber(6);
+}
+
+
+void CExpressionDlg::OnBnClickedButton7()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	inputNumber(7);
+}
+
+
+void CExpressionDlg::OnBnClickedButton8()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	inputNumber(8);
+}
+
+
+void CExpressionDlg::OnBnClickedButton9()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	inputNumber(9);
+}
+
+
+void CExpressionDlg::OnBnClickedButton0()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	inputNumber(0);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonP()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.push_back(EXP_P);
+	m_sExp += ".";
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonAdd()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.push_back(EXP_ADD);
+	m_sExp += "+";
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonSub()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.push_back(EXP_SUB);
+	m_sExp += "-";
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonMul()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.push_back(EXP_MUL);
+	m_sExp += "×";
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonDiv()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.push_back(EXP_DIV);
+	m_sExp += "÷";
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonLbr()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.push_back(EXP_LBR);
+	m_sExp += "(";
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonRbr()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.push_back(EXP_RBR);
+	m_sExp += ")";
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonSin()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.push_back(EXP_SIN);
+	m_sExp += "sin(θ)";
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonCos()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.push_back(EXP_COS);
+	m_sExp += "cos(θ)";
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonTan()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.push_back(EXP_TAN);
+	m_sExp += "tan(θ)";
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonTheta()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.push_back(EXP_THE);
+	m_sExp += "θ";
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonClear()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	vec_expression.clear();
+	m_sExp.Empty();
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonBack()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if (!vec_expression.empty())
+	{
+		if (vec_expression.back() > EXP_THE)
+		{
+			m_sExp = m_sExp.Left(m_sExp.GetLength() - 6);
+		}
+		else
+		{
+			m_sExp = m_sExp.Left(m_sExp.GetLength() - 1);
+		}
+		vec_expression.pop_back();
+	}
+	UpdateData(FALSE);
+}
+
+
+void CExpressionDlg::OnBnClickedButtonOk()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	bool flag = calcExpression();
+
+	if (flag)
+	{
+		vec_position.assign(stk_value.top().begin(), stk_value.top().end());
+	}
+	while (!stk_operator.empty())
+	{
+		stk_operator.pop();
+	}
+	while (!stk_value.empty())
+	{
+		stk_value.pop();
+	}
+
+	if (flag)
+	{
+		OnOK();
+	}
+	else
+	{
+		MessageBox(_T("表达式存在语法错误，请输入正确的表达式！"), 
+			_T("Error"), MB_OK | MB_ICONERROR);
+	}
+}
+
+
 // CExpressionDlg 运算程序
 
 void CExpressionDlg::inputNumber(int number)
@@ -333,252 +587,4 @@ void CExpressionDlg::calculate()
 		}
 	}
 	stk_value.push(temp);
-}
-
-
-// CExpressionDlg 消息处理程序
-
-BOOL CExpressionDlg::OnInitDialog()
-{
-	CDialogEx::OnInitDialog();
-
-	// TODO:  在此添加额外的初始化
-	m_hAccel = LoadAccelerators(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_ACCELERATOR_EXP));
-	UpdateData(FALSE);
-	return TRUE;
-}
-
-
-BOOL CExpressionDlg::PreTranslateMessage(MSG* pMsg)
-{
-	// TODO: 在此添加专用代码和/或调用基类
-	if (TranslateAccelerator(m_hWnd, m_hAccel, pMsg))
-	{
-		return TRUE;
-	}
-
-	return CDialogEx::PreTranslateMessage(pMsg);
-}
-
-
-void CExpressionDlg::OnBnClickedButton1()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	inputNumber(1);
-}
-
-
-void CExpressionDlg::OnBnClickedButton2()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	inputNumber(2);
-}
-
-
-void CExpressionDlg::OnBnClickedButton3()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	inputNumber(3);
-}
-
-
-void CExpressionDlg::OnBnClickedButton4()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	inputNumber(4);
-}
-
-
-void CExpressionDlg::OnBnClickedButton5()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	inputNumber(5);
-}
-
-
-void CExpressionDlg::OnBnClickedButton6()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	inputNumber(6);
-}
-
-
-void CExpressionDlg::OnBnClickedButton7()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	inputNumber(7);
-}
-
-
-void CExpressionDlg::OnBnClickedButton8()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	inputNumber(8);
-}
-
-
-void CExpressionDlg::OnBnClickedButton9()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	inputNumber(9);
-}
-
-
-void CExpressionDlg::OnBnClickedButton0()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	inputNumber(0);
-}
-
-
-void CExpressionDlg::OnBnClickedButtonP()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	vec_expression.push_back(EXP_P);
-	m_sExp += ".";
-	UpdateData(FALSE);
-}
-
-
-void CExpressionDlg::OnBnClickedButtonAdd()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	vec_expression.push_back(EXP_ADD);
-	m_sExp += "+";
-	UpdateData(FALSE);
-}
-
-
-void CExpressionDlg::OnBnClickedButtonSub()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	vec_expression.push_back(EXP_SUB);
-	m_sExp += "-";
-	UpdateData(FALSE);
-}
-
-
-void CExpressionDlg::OnBnClickedButtonMul()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	vec_expression.push_back(EXP_MUL);
-	m_sExp += "×";
-	UpdateData(FALSE);
-}
-
-
-void CExpressionDlg::OnBnClickedButtonDiv()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	vec_expression.push_back(EXP_DIV);
-	m_sExp += "÷";
-	UpdateData(FALSE);
-}
-
-
-void CExpressionDlg::OnBnClickedButtonLbr()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	vec_expression.push_back(EXP_LBR);
-	m_sExp += "(";
-	UpdateData(FALSE);
-}
-
-
-void CExpressionDlg::OnBnClickedButtonRbr()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	vec_expression.push_back(EXP_RBR);
-	m_sExp += ")";
-	UpdateData(FALSE);
-}
-
-
-void CExpressionDlg::OnBnClickedButtonSin()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	vec_expression.push_back(EXP_SIN);
-	m_sExp += "sin(θ)";
-	UpdateData(FALSE);
-}
-
-
-void CExpressionDlg::OnBnClickedButtonCos()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	vec_expression.push_back(EXP_COS);
-	m_sExp += "cos(θ)";
-	UpdateData(FALSE);
-}
-
-
-void CExpressionDlg::OnBnClickedButtonTan()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	vec_expression.push_back(EXP_TAN);
-	m_sExp += "tan(θ)";
-	UpdateData(FALSE);
-}
-
-
-void CExpressionDlg::OnBnClickedButtonTheta()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	vec_expression.push_back(EXP_THE);
-	m_sExp += "θ";
-	UpdateData(FALSE);
-}
-
-
-void CExpressionDlg::OnBnClickedButtonClear()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	vec_expression.clear();
-	m_sExp.Empty();
-	UpdateData(FALSE);
-}
-
-
-void CExpressionDlg::OnBnClickedButtonBack()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	if (!vec_expression.empty())
-	{
-		if (vec_expression.back() > EXP_THE)
-		{
-			m_sExp = m_sExp.Left(m_sExp.GetLength() - 6);
-		}
-		else
-		{
-			m_sExp = m_sExp.Left(m_sExp.GetLength() - 1);
-		}
-		vec_expression.pop_back();
-	}
-	UpdateData(FALSE);
-}
-
-
-void CExpressionDlg::OnBnClickedButtonOk()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	bool flag = calcExpression();
-
-	while (!stk_operator.empty())
-	{
-		stk_operator.pop();
-	}
-	while (!stk_value.empty())
-	{
-		stk_value.pop();
-	}
-
-	if (flag)
-	{
-		OnOK();
-	}
-	else
-	{
-		MessageBox(_T("表达式存在语法错误，请输入正确的表达式！"), 
-			_T("Error"), MB_OK | MB_ICONERROR);
-	}
 }

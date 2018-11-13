@@ -50,12 +50,12 @@ END_MESSAGE_MAP()
 
 CrobotCTDlg::CrobotCTDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CrobotCTDlg::IDD, pParent)
-	, s_expX(_T("0"))
-	, s_expY(_T("0"))
-	, s_expZ(_T("0"))
-	, s_expRx(_T("0"))
-	, s_expRy(_T("0"))
-	, s_expRz(_T("0"))
+	, m_sExpX(_T("0"))
+	, m_sExpY(_T("0"))
+	, m_sExpZ(_T("0"))
+	, m_sExpRx(_T("0"))
+	, m_sExpRy(_T("0"))
+	, m_sExpRz(_T("0"))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -63,12 +63,12 @@ CrobotCTDlg::CrobotCTDlg(CWnd* pParent /*=NULL*/)
 void CrobotCTDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	DDX_Text(pDX, IDC_EDIT_X, s_expX);
-	DDX_Text(pDX, IDC_EDIT_Y, s_expY);
-	DDX_Text(pDX, IDC_EDIT_Z, s_expZ);
-	DDX_Text(pDX, IDC_EDIT_RX, s_expRx);
-	DDX_Text(pDX, IDC_EDIT_RY, s_expRy);
-	DDX_Text(pDX, IDC_EDIT_RZ, s_expRz);
+	DDX_Text(pDX, IDC_EDIT_X, m_sExpX);
+	DDX_Text(pDX, IDC_EDIT_Y, m_sExpY);
+	DDX_Text(pDX, IDC_EDIT_Z, m_sExpZ);
+	DDX_Text(pDX, IDC_EDIT_RX, m_sExpRx);
+	DDX_Text(pDX, IDC_EDIT_RY, m_sExpRy);
+	DDX_Text(pDX, IDC_EDIT_RZ, m_sExpRz);
 }
 
 BEGIN_MESSAGE_MAP(CrobotCTDlg, CDialogEx)
@@ -81,6 +81,10 @@ BEGIN_MESSAGE_MAP(CrobotCTDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_RX, &CrobotCTDlg::OnBnClickedButtonRx)
 	ON_BN_CLICKED(IDC_BUTTON_RY, &CrobotCTDlg::OnBnClickedButtonRy)
 	ON_BN_CLICKED(IDC_BUTTON_RZ, &CrobotCTDlg::OnBnClickedButtonRz)
+	ON_BN_CLICKED(IDC_BUTTON_START, &CrobotCTDlg::OnBnClickedButtonStart)
+	ON_MESSAGE(WM_ERROR, &CrobotCTDlg::OnError)
+	ON_MESSAGE(WM_CONNECT, &CrobotCTDlg::OnConnect)
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -122,7 +126,17 @@ BOOL CrobotCTDlg::OnInitDialog()
 	vec_expRx.push_back(0);
 	vec_expRy.push_back(0);
 	vec_expRz.push_back(0);
-	
+	vec_posX.assign(NUMBER_ANGLE, 0.0);
+	vec_posY.assign(NUMBER_ANGLE, 0.0);
+	vec_posZ.assign(NUMBER_ANGLE, 0.0);
+	vec_posRx.assign(NUMBER_ANGLE, 0.0);
+	vec_posRy.assign(NUMBER_ANGLE, 0.0);
+	vec_posRz.assign(NUMBER_ANGLE, 0.0);
+
+	b_connectSerial = false;
+	b_connectRobot[0] = false;
+	b_connectRobot[1] = false;
+	b_connectDetector = false;
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -183,12 +197,13 @@ void CrobotCTDlg::OnBnClickedButtonX()
 	// TODO: 在此添加控件通知处理程序代码
 	CExpressionDlg expDlg;
 	expDlg.vec_expression.assign(vec_expX.begin(), vec_expX.end());
-	expDlg.m_sExp = s_expX;
+	expDlg.m_sExp = m_sExpX;
 
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expX.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		s_expX = expDlg.m_sExp;
+		vec_posX.assign(expDlg.vec_position.begin(), expDlg.vec_position.end());
+		m_sExpX = expDlg.m_sExp;
 	}
 	UpdateData(FALSE);
 }
@@ -199,12 +214,13 @@ void CrobotCTDlg::OnBnClickedButtonY()
 	// TODO: 在此添加控件通知处理程序代码
 	CExpressionDlg expDlg;
 	expDlg.vec_expression.assign(vec_expY.begin(), vec_expY.end());
-	expDlg.m_sExp = s_expY;
+	expDlg.m_sExp = m_sExpY;
 
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expY.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		s_expY = expDlg.m_sExp;
+		vec_posY.assign(expDlg.vec_position.begin(), expDlg.vec_position.end());
+		m_sExpY = expDlg.m_sExp;
 	}
 	UpdateData(FALSE);
 }
@@ -215,12 +231,13 @@ void CrobotCTDlg::OnBnClickedButtonZ()
 	// TODO: 在此添加控件通知处理程序代码
 	CExpressionDlg expDlg;
 	expDlg.vec_expression.assign(vec_expZ.begin(), vec_expZ.end());
-	expDlg.m_sExp = s_expZ;
+	expDlg.m_sExp = m_sExpZ;
 
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expZ.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		s_expZ = expDlg.m_sExp;
+		vec_posZ.assign(expDlg.vec_position.begin(), expDlg.vec_position.end());
+		m_sExpZ = expDlg.m_sExp;
 	}
 	UpdateData(FALSE);
 }
@@ -231,12 +248,13 @@ void CrobotCTDlg::OnBnClickedButtonRx()
 	// TODO: 在此添加控件通知处理程序代码
 	CExpressionDlg expDlg;
 	expDlg.vec_expression.assign(vec_expRx.begin(), vec_expRx.end());
-	expDlg.m_sExp = s_expRx;
+	expDlg.m_sExp = m_sExpRx;
 
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expRx.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		s_expRx = expDlg.m_sExp;
+		vec_posRx.assign(expDlg.vec_position.begin(), expDlg.vec_position.end());
+		m_sExpRx = expDlg.m_sExp;
 	}
 	UpdateData(FALSE);
 }
@@ -247,12 +265,13 @@ void CrobotCTDlg::OnBnClickedButtonRy()
 	// TODO: 在此添加控件通知处理程序代码
 	CExpressionDlg expDlg;
 	expDlg.vec_expression.assign(vec_expRy.begin(), vec_expRy.end());
-	expDlg.m_sExp = s_expRy;
+	expDlg.m_sExp = m_sExpRy;
 
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expRy.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		s_expRy = expDlg.m_sExp;
+		vec_posRy.assign(expDlg.vec_position.begin(), expDlg.vec_position.end());
+		m_sExpRy = expDlg.m_sExp;
 	}
 	UpdateData(FALSE);
 }
@@ -263,12 +282,153 @@ void CrobotCTDlg::OnBnClickedButtonRz()
 	// TODO: 在此添加控件通知处理程序代码
 	CExpressionDlg expDlg;
 	expDlg.vec_expression.assign(vec_expRz.begin(), vec_expRz.end());
-	expDlg.m_sExp = s_expRz;
+	expDlg.m_sExp = m_sExpRz;
 
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expRz.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		s_expRz = expDlg.m_sExp;
+		vec_posRz.assign(expDlg.vec_position.begin(), expDlg.vec_position.end());
+		m_sExpRz = expDlg.m_sExp;
 	}
 	UpdateData(FALSE);
+}
+
+
+void CrobotCTDlg::OnBnClickedButtonStart()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	th_workThread = (CWorkThread*)AfxBeginThread(RUNTIME_CLASS(CWorkThread));
+	GetDlgItem(IDC_BUTTON_X)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BUTTON_Y)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BUTTON_Z)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BUTTON_RX)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BUTTON_RY)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BUTTON_RZ)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BUTTON_START)->EnableWindow(FALSE);
+}
+
+
+LRESULT CrobotCTDlg::OnError(WPARAM wParam, LPARAM lParam)
+{
+	CString msg;
+	switch (wParam)
+	{
+	case DEVICE_SERIAL:
+		msg.Format(_T("打开串口发生错误 %d"), (int)lParam);
+		break;
+	case DEVICE_SERVER:
+		msg.Format(_T("本机Socket创建发生错误 %d"), (int)lParam);
+		break;
+	case DEVICE_ROBOT_0:
+		msg.Format(_T("机械臂 0 连接发生错误 %d"), (int)lParam);
+		break;
+	case DEVICE_ROBOT_1:
+		msg.Format(_T("机械臂 1 连接发生错误 %d"), (int)lParam);
+		break;
+	case DEVICE_DETECTOR:
+		msg.Format(_T("探测器连接发生错误 %d"), (int)lParam);
+		break;
+	default:
+		break;
+	}
+	MessageBox(msg, _T("Error"), MB_OK | MB_ICONERROR);
+	GetDlgItem(IDC_BUTTON_X)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON_Y)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON_Z)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON_RX)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON_RY)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON_RZ)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON_START)->EnableWindow(TRUE);
+
+	return 0;
+}
+
+
+LRESULT CrobotCTDlg::OnConnect(WPARAM wParam, LPARAM lParam)
+{
+	switch (wParam)
+	{
+	case DEVICE_SERIAL:
+		b_connectSerial = true;
+		break;
+	case DEVICE_ROBOT_0:
+		b_connectRobot[0] = true;
+		break;
+	case DEVICE_ROBOT_1:
+		b_connectRobot[1] = true;
+		break;
+	case DEVICE_DETECTOR:
+		b_connectDetector = true;
+		break;
+	default:
+		break;
+	}
+
+	if (b_connectSerial && b_connectRobot[0] && b_connectRobot[1] && b_connectDetector)
+	{
+		SetupPos();
+		SetTimer(1, 50, NULL);
+		th_workThread->PostThreadMessage(WM_MOVE, (WPARAM)&*vec_poseQ.begin(), NULL);
+	}
+
+	return 0;
+}
+
+
+void CrobotCTDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	switch (nIDEvent)
+	{
+	case 1:
+		th_workThread->PostThreadMessage(WM_THREADTIMER, NULL, NULL);
+		break;
+	default:
+		break;
+	}
+
+	CDialogEx::OnTimer(nIDEvent);
+}
+
+
+// CrobotCTDlg 计算程序
+
+void CrobotCTDlg::SetupPos()
+{
+	std::vector<POSE_R> poses_r;
+	std::vector<POSE_Q> poses_q;
+
+	// 上轨道过渡点
+	poses_r.push_back(
+		POSE_R(BCS_X, BCS_Y + vec_posY.front(), BCS_Z, BCS_RX, BCS_RY, BCS_RZ));
+	for (int i = 0; i < vec_posX.size(); i++)
+	{
+		poses_r.push_back(POSE_R(vec_posX.at(i), vec_posY.at(i), vec_posZ.at(i), 
+			vec_posRx.at(i), vec_posRy.at(i), vec_posRz.at(i)));
+	}
+	// 下轨道过渡点
+	poses_r.push_back(POSE_R(BCS_X, BCS_Y + vec_posY.back(), BCS_Z, 
+		BCS_RX, BCS_RY, (BCS_RZ + vec_posRz.back()) / 2));
+	// 回到初始位置
+	poses_r.push_back(POSE_R(BCS_X, BCS_Y, BCS_Z, BCS_RX, BCS_RY, BCS_RZ));
+	vec_poseR.assign(poses_r.begin(), poses_r.end());
+
+	for (int i = 0; i < poses_r.size(); i++)
+	{
+		POSE_R pose_r = poses_r.at(i);
+		double x = pose_r.x;
+		double y = - 0.1 * pose_r.y;
+		double z = pose_r.z;
+		double q0 = cos(pose_r.rx / 2) * cos(pose_r.ry / 2) * cos(pose_r.rz / 2)
+			+ sin(pose_r.rx / 2) * sin(pose_r.ry / 2) * sin(pose_r.rz / 2);
+		double q1 = sin(pose_r.rx / 2) * cos(pose_r.ry / 2) * cos(pose_r.rz / 2)
+			- cos(pose_r.rx / 2) * sin(pose_r.ry / 2) * sin(pose_r.rz / 2);
+		double q2 = cos(pose_r.rx / 2) * sin(pose_r.ry / 2) * cos(pose_r.rz / 2)
+			+ sin(pose_r.rx / 2) * cos(pose_r.ry / 2) * sin(pose_r.rz / 2);
+		double q3 = cos(pose_r.rx / 2) * cos(pose_r.ry / 2) * sin(pose_r.rz / 2)
+			- sin(pose_r.rx / 2) * sin(pose_r.ry / 2) * cos(pose_r.rz / 2);
+		double w = 1.1 * pose_r.y;
+		poses_q.push_back(POSE_Q(x, y, z, q0, q1, q2, q3, w));
+	}
+	vec_poseQ.assign(poses_q.begin(), poses_q.end());
 }

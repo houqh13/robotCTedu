@@ -34,6 +34,7 @@ public:
 	std::vector<int> vec_expression;				// 存储输入的内容
 	std::stack<std::array<double, NUMBER_ANGLE>> stk_value;		// 计算表达式的数值栈
 	std::stack<int> stk_operator;					// 计算表达式的运算符栈
+	std::vector<double> vec_position;				// 存储计算的结果
 	void inputNumber(int number);
 	bool calcExpression();							// 检查表达式合法性并计算表达式
 	void calculate();								// 运行栈顶的一次运算

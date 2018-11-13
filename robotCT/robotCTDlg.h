@@ -7,6 +7,8 @@
 #include <vector>
 
 #include "ExpressionDlg.h"
+#include "WorkThread.h"
+#include "afxwin.h"
 
 
 // CrobotCTDlg 对话框
@@ -35,24 +37,43 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 public:
-	std::vector<int> vec_expX;		// 存储x坐标的表达式
+	// 欧拉角坐标的表达式
+	std::vector<int> vec_expX;
 	std::vector<int> vec_expY;
 	std::vector<int> vec_expZ;
 	std::vector<int> vec_expRx;
 	std::vector<int> vec_expRy;
 	std::vector<int> vec_expRz;
+	// 欧拉角坐标值
+	std::vector<double> vec_posX;
+	std::vector<double> vec_posY;
+	std::vector<double> vec_posZ;
+	std::vector<double> vec_posRx;
+	std::vector<double> vec_posRy;
+	std::vector<double> vec_posRz;
+	std::vector<POSE_R> vec_poseR;	// 欧拉角坐标值(添加过渡点)
+	std::vector<POSE_Q> vec_poseQ;	// 四元数坐标值(添加过渡点)
+	CWorkThread* th_workThread;		// 通讯线程
+	bool b_connectSerial;			// 串口通讯连接状态
+	bool b_connectRobot[2];			// 机械臂网络通讯连接状态
+	bool b_connectDetector;			// 探测器网络通讯连接状态
+	void SetupPos();				// 位姿初始化
 
 public:
-	CString s_expX;
-	CString s_expY;
-	CString s_expZ;
-	CString s_expRx;
-	CString s_expRy;
-	CString s_expRz;
+	CString m_sExpX;
+	CString m_sExpY;
+	CString m_sExpZ;
+	CString m_sExpRx;
+	CString m_sExpRy;
+	CString m_sExpRz;
 	afx_msg void OnBnClickedButtonX();
 	afx_msg void OnBnClickedButtonY();
 	afx_msg void OnBnClickedButtonZ();
 	afx_msg void OnBnClickedButtonRx();
 	afx_msg void OnBnClickedButtonRy();
 	afx_msg void OnBnClickedButtonRz();
+	afx_msg void OnBnClickedButtonStart();
+	LRESULT OnError(WPARAM wParam, LPARAM lParam);		// 工作线程错误消息相应函数
+	LRESULT OnConnect(WPARAM wParam, LPARAM lParam);	// 工作线程设备连接消息相应函数
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };
