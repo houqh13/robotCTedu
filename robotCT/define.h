@@ -1,6 +1,15 @@
-# pragma once
 
 // define.h : 参数定义
+//
+
+# pragma once
+
+#ifndef _DEFINE_H
+#define _DEFINE_H
+
+#endif
+
+#include <math.h>
 
 /******************基本CT几何定义*******************/
 
@@ -19,7 +28,7 @@
 #define BCS_RY		(PI / 2)
 #define BCS_RZ		0
 
-// 欧拉角定义
+// 机械臂末端位置: 欧拉角定义
 typedef struct __POSE_R__
 {
 	double x;
@@ -39,7 +48,7 @@ typedef struct __POSE_R__
 	}
 } POSE_R;
 
-// 四元数定义
+// 机械臂实际运行位置(含外部轴): 四元数定义
 typedef struct __POSE_Q__
 {
 	double x;
@@ -60,6 +69,21 @@ typedef struct __POSE_Q__
 		this->q1 = q1;
 		this->q2 = q2;
 		this->q3 = q3;
+		this->w = w;
+	}
+	__POSE_Q__(POSE_R pose_r, double w = 0.0)
+	{
+		x = pose_r.x;
+		y = pose_r.y - w;
+		z = pose_r.z;
+		q0 = cos(pose_r.rx / 2) * cos(pose_r.ry / 2) * cos(pose_r.rz / 2)
+			+ sin(pose_r.rx / 2) * sin(pose_r.ry / 2) * sin(pose_r.rz / 2);
+		q1 = sin(pose_r.rx / 2) * cos(pose_r.ry / 2) * cos(pose_r.rz / 2)
+			- cos(pose_r.rx / 2) * sin(pose_r.ry / 2) * sin(pose_r.rz / 2);
+		q2 = cos(pose_r.rx / 2) * sin(pose_r.ry / 2) * cos(pose_r.rz / 2)
+			+ sin(pose_r.rx / 2) * cos(pose_r.ry / 2) * sin(pose_r.rz / 2);
+		q3 = cos(pose_r.rx / 2) * cos(pose_r.ry / 2) * sin(pose_r.rz / 2)
+			- sin(pose_r.rx / 2) * sin(pose_r.ry / 2) * cos(pose_r.rz / 2);
 		this->w = w;
 	}
 } POSE_Q;
@@ -132,7 +156,7 @@ typedef struct __POSE_Q__
 
 // 用户界面线程消息
 #define WM_THREADTIMER		WM_USER + 0x21
-#define WM_MOVE				WM_USER + 0x22
+#define WM_START			WM_USER + 0x22
 
 
 /*********************其他定义**********************/

@@ -126,12 +126,7 @@ BOOL CrobotCTDlg::OnInitDialog()
 	vec_expRx.push_back(0);
 	vec_expRy.push_back(0);
 	vec_expRz.push_back(0);
-	vec_posX.assign(NUMBER_ANGLE, 0.0);
-	vec_posY.assign(NUMBER_ANGLE, 0.0);
-	vec_posZ.assign(NUMBER_ANGLE, 0.0);
-	vec_posRx.assign(NUMBER_ANGLE, 0.0);
-	vec_posRy.assign(NUMBER_ANGLE, 0.0);
-	vec_posRz.assign(NUMBER_ANGLE, 0.0);
+	vec_poseR.assign(NUMBER_ANGLE, POSE_R(0.0, 0.0, 0.0, 0.0, 0.0, 0.0));
 
 	b_connectSerial = false;
 	b_connectRobot[0] = false;
@@ -202,7 +197,10 @@ void CrobotCTDlg::OnBnClickedButtonX()
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expX.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		vec_posX.assign(expDlg.vec_position.begin(), expDlg.vec_position.end());
+		for (int i = 0; i < vec_poseR.size(); i++)
+		{
+			vec_poseR[i].x = expDlg.vec_position[i];
+		}
 		m_sExpX = expDlg.m_sExp;
 	}
 	UpdateData(FALSE);
@@ -219,7 +217,10 @@ void CrobotCTDlg::OnBnClickedButtonY()
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expY.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		vec_posY.assign(expDlg.vec_position.begin(), expDlg.vec_position.end());
+		for (int i = 0; i < vec_poseR.size(); i++)
+		{
+			vec_poseR[i].y = expDlg.vec_position[i];
+		}
 		m_sExpY = expDlg.m_sExp;
 	}
 	UpdateData(FALSE);
@@ -236,7 +237,10 @@ void CrobotCTDlg::OnBnClickedButtonZ()
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expZ.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		vec_posZ.assign(expDlg.vec_position.begin(), expDlg.vec_position.end());
+		for (int i = 0; i < vec_poseR.size(); i++)
+		{
+			vec_poseR[i].z = expDlg.vec_position[i];
+		}
 		m_sExpZ = expDlg.m_sExp;
 	}
 	UpdateData(FALSE);
@@ -253,7 +257,10 @@ void CrobotCTDlg::OnBnClickedButtonRx()
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expRx.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		vec_posRx.assign(expDlg.vec_position.begin(), expDlg.vec_position.end());
+		for (int i = 0; i < vec_poseR.size(); i++)
+		{
+			vec_poseR[i].rx = expDlg.vec_position[i];
+		}
 		m_sExpRx = expDlg.m_sExp;
 	}
 	UpdateData(FALSE);
@@ -270,7 +277,10 @@ void CrobotCTDlg::OnBnClickedButtonRy()
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expRy.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		vec_posRy.assign(expDlg.vec_position.begin(), expDlg.vec_position.end());
+		for (int i = 0; i < vec_poseR.size(); i++)
+		{
+			vec_poseR[i].ry = expDlg.vec_position[i];
+		}
 		m_sExpRy = expDlg.m_sExp;
 	}
 	UpdateData(FALSE);
@@ -287,7 +297,10 @@ void CrobotCTDlg::OnBnClickedButtonRz()
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expRz.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		vec_posRz.assign(expDlg.vec_position.begin(), expDlg.vec_position.end());
+		for (int i = 0; i < vec_poseR.size(); i++)
+		{
+			vec_poseR[i].rz = expDlg.vec_position[i];
+		}
 		m_sExpRz = expDlg.m_sExp;
 	}
 	UpdateData(FALSE);
@@ -297,6 +310,8 @@ void CrobotCTDlg::OnBnClickedButtonRz()
 void CrobotCTDlg::OnBnClickedButtonStart()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	SetupPos();
+
 	th_workThread = (CWorkThread*)AfxBeginThread(RUNTIME_CLASS(CWorkThread));
 	GetDlgItem(IDC_BUTTON_X)->EnableWindow(FALSE);
 	GetDlgItem(IDC_BUTTON_Y)->EnableWindow(FALSE);
@@ -366,9 +381,8 @@ LRESULT CrobotCTDlg::OnConnect(WPARAM wParam, LPARAM lParam)
 
 	if (b_connectSerial && b_connectRobot[0] && b_connectRobot[1] && b_connectDetector)
 	{
-		SetupPos();
 		SetTimer(1, 50, NULL);
-		th_workThread->PostThreadMessage(WM_MOVE, (WPARAM)&*vec_poseQ.begin(), NULL);
+		th_workThread->PostThreadMessage(WM_START, (WPARAM)&*vec_poseQ.begin(), NULL);
 	}
 
 	return 0;
@@ -395,40 +409,22 @@ void CrobotCTDlg::OnTimer(UINT_PTR nIDEvent)
 
 void CrobotCTDlg::SetupPos()
 {
-	std::vector<POSE_R> poses_r;
 	std::vector<POSE_Q> poses_q;
 
 	// 上轨道过渡点
-	poses_r.push_back(
-		POSE_R(BCS_X, BCS_Y + vec_posY.front(), BCS_Z, BCS_RX, BCS_RY, BCS_RZ));
-	for (int i = 0; i < vec_posX.size(); i++)
+	poses_q.push_back(POSE_Q(
+		POSE_R(BCS_X, BCS_Y + vec_poseR.front().y, BCS_Z, BCS_RX, BCS_RY, BCS_RZ),
+		1.1 * (BCS_Y + vec_poseR.front().y)));
+	for (int i = 0; i < vec_poseR.size(); i++)
 	{
-		poses_r.push_back(POSE_R(vec_posX.at(i), vec_posY.at(i), vec_posZ.at(i), 
-			vec_posRx.at(i), vec_posRy.at(i), vec_posRz.at(i)));
+		poses_q.push_back(POSE_Q(vec_poseR[i],1.1 * vec_poseR[i].y));
 	}
 	// 下轨道过渡点
-	poses_r.push_back(POSE_R(BCS_X, BCS_Y + vec_posY.back(), BCS_Z, 
-		BCS_RX, BCS_RY, (BCS_RZ + vec_posRz.back()) / 2));
+	poses_q.push_back(POSE_Q(
+		POSE_R(BCS_X, BCS_Y + vec_poseR.back().y, BCS_Z, BCS_RX, BCS_RY, (BCS_RZ + vec_poseR.back().rz) / 2), 
+		1.1 * (BCS_Y + vec_poseR.back().y)));
 	// 回到初始位置
-	poses_r.push_back(POSE_R(BCS_X, BCS_Y, BCS_Z, BCS_RX, BCS_RY, BCS_RZ));
-	vec_poseR.assign(poses_r.begin(), poses_r.end());
+	poses_q.push_back(POSE_Q(POSE_R(BCS_X, BCS_Y, BCS_Z, BCS_RX, BCS_RY, BCS_RZ)));
 
-	for (int i = 0; i < poses_r.size(); i++)
-	{
-		POSE_R pose_r = poses_r.at(i);
-		double x = pose_r.x;
-		double y = - 0.1 * pose_r.y;
-		double z = pose_r.z;
-		double q0 = cos(pose_r.rx / 2) * cos(pose_r.ry / 2) * cos(pose_r.rz / 2)
-			+ sin(pose_r.rx / 2) * sin(pose_r.ry / 2) * sin(pose_r.rz / 2);
-		double q1 = sin(pose_r.rx / 2) * cos(pose_r.ry / 2) * cos(pose_r.rz / 2)
-			- cos(pose_r.rx / 2) * sin(pose_r.ry / 2) * sin(pose_r.rz / 2);
-		double q2 = cos(pose_r.rx / 2) * sin(pose_r.ry / 2) * cos(pose_r.rz / 2)
-			+ sin(pose_r.rx / 2) * cos(pose_r.ry / 2) * sin(pose_r.rz / 2);
-		double q3 = cos(pose_r.rx / 2) * cos(pose_r.ry / 2) * sin(pose_r.rz / 2)
-			- sin(pose_r.rx / 2) * sin(pose_r.ry / 2) * cos(pose_r.rz / 2);
-		double w = 1.1 * pose_r.y;
-		poses_q.push_back(POSE_Q(x, y, z, q0, q1, q2, q3, w));
-	}
 	vec_poseQ.assign(poses_q.begin(), poses_q.end());
 }

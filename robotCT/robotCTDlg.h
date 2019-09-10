@@ -44,15 +44,8 @@ public:
 	std::vector<int> vec_expRx;
 	std::vector<int> vec_expRy;
 	std::vector<int> vec_expRz;
-	// 欧拉角坐标值
-	std::vector<double> vec_posX;
-	std::vector<double> vec_posY;
-	std::vector<double> vec_posZ;
-	std::vector<double> vec_posRx;
-	std::vector<double> vec_posRy;
-	std::vector<double> vec_posRz;
-	std::vector<POSE_R> vec_poseR;	// 欧拉角坐标值(添加过渡点)
-	std::vector<POSE_Q> vec_poseQ;	// 四元数坐标值(添加过渡点)
+	std::vector<POSE_R> vec_poseR;	// 欧拉角坐标值(未添加过渡点, 实时更新)
+	std::vector<POSE_Q> vec_poseQ;	// 四元数坐标值(含外部轴, 添加过渡点, 非实时更新)
 	CWorkThread* th_workThread;		// 通讯线程
 	bool b_connectSerial;			// 串口通讯连接状态
 	bool b_connectRobot[2];			// 机械臂网络通讯连接状态
