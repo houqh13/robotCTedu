@@ -21,12 +21,12 @@
 /**********************坐标系***********************/
 
 // 初始位置欧拉角定义坐标值
-#define BCS_X		350
-#define BCS_Y		0
-#define BCS_Z		600
-#define BCS_RX		0
+#define BCS_X		350.0
+#define BCS_Y		0.0
+#define BCS_Z		600.0
+#define BCS_RX		0.0
 #define BCS_RY		(PI / 2)
-#define BCS_RZ		0
+#define BCS_RZ		0.0
 
 // 机械臂末端位置: 欧拉角定义
 typedef struct __POSE_R__
@@ -59,8 +59,8 @@ typedef struct __POSE_Q__
 	double q2;
 	double q3;
 	double w;		// 外部轴(导轨)
-	__POSE_Q__(double x, double y, double z, 
-		double q0, double q1, double q2, double q3, double w)
+	int index;		// 成像位置序号(从0开始, -1为不成像的过渡点)
+	__POSE_Q__(double x, double y, double z, double q0, double q1, double q2, double q3, double w, int index)
 	{
 		this->x = x;
 		this->y = y;
@@ -70,8 +70,9 @@ typedef struct __POSE_Q__
 		this->q2 = q2;
 		this->q3 = q3;
 		this->w = w;
+		this->index = index;
 	}
-	__POSE_Q__(POSE_R pose_r, double w = 0.0)
+	__POSE_Q__(POSE_R pose_r, double w = 0.0, int index = -1)
 	{
 		x = pose_r.x;
 		y = pose_r.y - w;
@@ -85,8 +86,13 @@ typedef struct __POSE_Q__
 		q3 = cos(pose_r.rx / 2) * cos(pose_r.ry / 2) * sin(pose_r.rz / 2)
 			- sin(pose_r.rx / 2) * sin(pose_r.ry / 2) * cos(pose_r.rz / 2);
 		this->w = w;
+		this->index = index;
 	}
 } POSE_Q;
+
+#define	GUIDE_MAX_SIDE	230.0			// 导轨单侧最大运行长度
+#define	GUIDE_POS_SIDE	5				// 导轨单侧可运行位置数(减少导轨运动次数, 以机械臂运动代替频繁的导轨运动)
+#define	GUIDE_GAP		GUIDE_MAX_SIDE / GUIDE_POS_SIDE
 
 
 /*****************输入表达式对话框******************/
@@ -121,8 +127,15 @@ typedef struct __POSE_Q__
 // 串口通信协议
 
 
+// 网络通信端口
+#define SERVER_PORT			6000
+
 // 网络通信协议
-#define PROTOCAL_CONNECT	"a0"
+#define PROTOCAL_CONNECT			"a0"
+#define PROTOCAL_ROBOT_MOVE			"RM\r"
+#define	PROTOCAL_ROBOT_REACH		"RR\r"
+#define	PROTOCAL_DETECTOR_SHOW		"DS\r"
+#define	PROTOCAL_DETECTOR_FINISH	"DF\r"
 
 // 缓冲区长度
 #define BUFFER_SERIAL_RECEIVE	7
@@ -133,7 +146,7 @@ typedef struct __POSE_Q__
 
 /*****************步进电机设置参数******************/
 
-#define LEAD			5		// 丝杠螺距(mm)
+#define LEAD			5.0		// 丝杠螺距(mm)
 
 // 细分
 #define	DIVIDE_2		2
@@ -153,10 +166,28 @@ typedef struct __POSE_Q__
 // 工作线程消息
 #define WM_ERROR			WM_USER + 0x01
 #define WM_CONNECT			WM_USER + 0x02
+#define WM_REACH			WM_USER + 0x03
+#define	WM_FINISH			WM_USER + 0x04
 
 // 用户界面线程消息
 #define WM_THREADTIMER		WM_USER + 0x21
 #define WM_START			WM_USER + 0x22
+#define	WM_SHOW				WM_USER + 0x23
 
 
 /*********************其他定义**********************/
+
+// 错误消息参数
+#define	SOCKET_INITIAL		201		// 套接字初始化错误
+
+// 精度定义(用于浮点数转字符串)
+#define	PRECISION_1			1
+#define	PRECISION_2			2
+#define	PRECISION_3			3
+#define	PRECISION_4			4
+#define	PRECISION_5			5
+#define	PRECISION_6			6
+#define	PRECISION_7			7
+#define	PRECISION_8			8
+#define	PRECISION_9			9
+#define	PRECISION_10		10

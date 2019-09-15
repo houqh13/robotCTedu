@@ -101,6 +101,8 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AsyncClientSocket.h" />
+    <ClInclude Include="AsyncServerSocket.h" />
     <ClInclude Include="define.h" />
     <ClInclude Include="ExpressionDlg.h" />
     <ClInclude Include="Resource.h" />
@@ -111,6 +113,8 @@
     <ClInclude Include="WorkThread.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AsyncClientSocket.cpp" />
+    <ClCompile Include="AsyncServerSocket.cpp" />
     <ClCompile Include="ExpressionDlg.cpp" />
     <ClCompile Include="robotCT.cpp" />
     <ClCompile Include="robotCTDlg.cpp" />

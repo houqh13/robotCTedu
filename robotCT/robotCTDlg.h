@@ -21,7 +21,7 @@ public:
 // 对话框数据
 	enum { IDD = IDD_ROBOTCT_DIALOG };
 
-	protected:
+protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
 
 
@@ -50,6 +50,7 @@ public:
 	bool b_connectSerial;			// 串口通讯连接状态
 	bool b_connectRobot[2];			// 机械臂网络通讯连接状态
 	bool b_connectDetector;			// 探测器网络通讯连接状态
+	int i_progress;					// 扫描进度
 	void SetupPos();				// 位姿初始化
 
 public:
@@ -66,7 +67,9 @@ public:
 	afx_msg void OnBnClickedButtonRy();
 	afx_msg void OnBnClickedButtonRz();
 	afx_msg void OnBnClickedButtonStart();
-	LRESULT OnError(WPARAM wParam, LPARAM lParam);		// 工作线程错误消息相应函数
-	LRESULT OnConnect(WPARAM wParam, LPARAM lParam);	// 工作线程设备连接消息相应函数
+	LRESULT OnError(WPARAM wParam, LPARAM lParam);		// 工作线程错误消息响应函数
+	LRESULT OnConnect(WPARAM wParam, LPARAM lParam);	// 工作线程设备连接消息响应函数
+	LRESULT OnReach(WPARAM wParam, LPARAM lParam);		// 运动设备到达位置消息响应函数
+	LRESULT OnFinish(WPARAM wParam, LPARAM lParam);		// 当前位置扫描结束消息响应函数
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };

@@ -84,6 +84,8 @@ BEGIN_MESSAGE_MAP(CrobotCTDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_START, &CrobotCTDlg::OnBnClickedButtonStart)
 	ON_MESSAGE(WM_ERROR, &CrobotCTDlg::OnError)
 	ON_MESSAGE(WM_CONNECT, &CrobotCTDlg::OnConnect)
+	ON_MESSAGE(WM_REACH, &CrobotCTDlg::OnReach)
+	ON_MESSAGE(WM_FINISH, &CrobotCTDlg::OnFinish)
 	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
@@ -132,6 +134,7 @@ BOOL CrobotCTDlg::OnInitDialog()
 	b_connectRobot[0] = false;
 	b_connectRobot[1] = false;
 	b_connectDetector = false;
+	i_progress = 0;
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -197,7 +200,7 @@ void CrobotCTDlg::OnBnClickedButtonX()
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expX.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		for (int i = 0; i < vec_poseR.size(); i++)
+		for (unsigned int i = 0; i < vec_poseR.size(); i++)
 		{
 			vec_poseR[i].x = expDlg.vec_position[i];
 		}
@@ -217,7 +220,7 @@ void CrobotCTDlg::OnBnClickedButtonY()
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expY.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		for (int i = 0; i < vec_poseR.size(); i++)
+		for (unsigned int i = 0; i < vec_poseR.size(); i++)
 		{
 			vec_poseR[i].y = expDlg.vec_position[i];
 		}
@@ -237,7 +240,7 @@ void CrobotCTDlg::OnBnClickedButtonZ()
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expZ.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		for (int i = 0; i < vec_poseR.size(); i++)
+		for (unsigned int i = 0; i < vec_poseR.size(); i++)
 		{
 			vec_poseR[i].z = expDlg.vec_position[i];
 		}
@@ -257,7 +260,7 @@ void CrobotCTDlg::OnBnClickedButtonRx()
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expRx.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		for (int i = 0; i < vec_poseR.size(); i++)
+		for (unsigned int i = 0; i < vec_poseR.size(); i++)
 		{
 			vec_poseR[i].rx = expDlg.vec_position[i];
 		}
@@ -277,7 +280,7 @@ void CrobotCTDlg::OnBnClickedButtonRy()
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expRy.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		for (int i = 0; i < vec_poseR.size(); i++)
+		for (unsigned int i = 0; i < vec_poseR.size(); i++)
 		{
 			vec_poseR[i].ry = expDlg.vec_position[i];
 		}
@@ -297,7 +300,7 @@ void CrobotCTDlg::OnBnClickedButtonRz()
 	if (expDlg.DoModal() == IDOK)
 	{
 		vec_expRz.assign(expDlg.vec_expression.begin(), expDlg.vec_expression.end());
-		for (int i = 0; i < vec_poseR.size(); i++)
+		for (unsigned int i = 0; i < vec_poseR.size(); i++)
 		{
 			vec_poseR[i].rz = expDlg.vec_position[i];
 		}
@@ -331,8 +334,11 @@ LRESULT CrobotCTDlg::OnError(WPARAM wParam, LPARAM lParam)
 	case DEVICE_SERIAL:
 		msg.Format(_T("打开串口发生错误 %d"), (int)lParam);
 		break;
+	case SOCKET_INITIAL:
+		msg.Format(_T("本机Socket初始化发生错误 %d"), (int)lParam);
+		break;
 	case DEVICE_SERVER:
-		msg.Format(_T("本机Socket创建发生错误 %d"), (int)lParam);
+		msg.Format(_T("本机服务器创建发生错误 %d"), (int)lParam);
 		break;
 	case DEVICE_ROBOT_0:
 		msg.Format(_T("机械臂 0 连接发生错误 %d"), (int)lParam);
@@ -381,9 +387,59 @@ LRESULT CrobotCTDlg::OnConnect(WPARAM wParam, LPARAM lParam)
 
 	if (b_connectSerial && b_connectRobot[0] && b_connectRobot[1] && b_connectDetector)
 	{
-		SetTimer(1, 50, NULL);
-		th_workThread->PostThreadMessage(WM_START, (WPARAM)&*vec_poseQ.begin(), NULL);
+		SetTimer(1, 20, NULL);
+		th_workThread->PostThreadMessage(WM_START, (WPARAM)&vec_poseQ[0], NULL);
 	}
+
+	return 0;
+}
+
+
+LRESULT CrobotCTDlg::OnReach(WPARAM wParam, LPARAM lParam)
+{
+	if (i_progress == vec_poseQ.size() - 1)
+	{
+		// 完成扫描, 清理工作线程
+		KillTimer(1);
+		th_workThread->PostThreadMessage(WM_QUIT, NULL, NULL);
+		MessageBox(_T("扫描完成！"), _T("Success"), MB_OK | MB_ICONINFORMATION);
+		// 重置相关参数
+		i_progress = 0;
+		b_connectSerial = false;
+		b_connectRobot[0] = false;
+		b_connectRobot[1] = false;
+		b_connectDetector = false;
+		GetDlgItem(IDC_BUTTON_X)->EnableWindow(TRUE);
+		GetDlgItem(IDC_BUTTON_Y)->EnableWindow(TRUE);
+		GetDlgItem(IDC_BUTTON_Z)->EnableWindow(TRUE);
+		GetDlgItem(IDC_BUTTON_RX)->EnableWindow(TRUE);
+		GetDlgItem(IDC_BUTTON_RY)->EnableWindow(TRUE);
+		GetDlgItem(IDC_BUTTON_RZ)->EnableWindow(TRUE);
+		GetDlgItem(IDC_BUTTON_START)->EnableWindow(TRUE);
+	}
+	else
+	{
+		// 未完成扫描
+		if (vec_poseQ[i_progress].index == -1)
+		{
+			// 非成像位置, 直接运动到下一位置
+			this->PostMessage(WM_FINISH, NULL, NULL);
+		}
+		else
+		{
+			// 成像位置, 通知平板显示图片(模拟开始成像)
+			th_workThread->PostThreadMessage(WM_SHOW, (WPARAM)vec_poseQ[i_progress].index, NULL);
+		}
+	}
+
+	return 0;
+}
+
+
+LRESULT CrobotCTDlg::OnFinish(WPARAM wParam, LPARAM lParam)
+{
+	i_progress++;
+	th_workThread->PostThreadMessage(WM_START, (WPARAM)&vec_poseQ[i_progress], NULL);
 
 	return 0;
 }
@@ -415,9 +471,11 @@ void CrobotCTDlg::SetupPos()
 	poses_q.push_back(POSE_Q(
 		POSE_R(BCS_X, BCS_Y + vec_poseR.front().y, BCS_Z, BCS_RX, BCS_RY, BCS_RZ),
 		1.1 * (BCS_Y + vec_poseR.front().y)));
-	for (int i = 0; i < vec_poseR.size(); i++)
+	for (unsigned int i = 0; i < vec_poseR.size(); i++)
 	{
-		poses_q.push_back(POSE_Q(vec_poseR[i],1.1 * vec_poseR[i].y));
+		double guidepos = (vec_poseQ[i].y >= 0 ? 1 : -1) * 
+			ceil(min(abs(1.1 * vec_poseR[i].y), GUIDE_MAX_SIDE) / GUIDE_GAP);
+		poses_q.push_back(POSE_Q(vec_poseR[i], guidepos * GUIDE_GAP, i));
 	}
 	// 下轨道过渡点
 	poses_q.push_back(POSE_Q(

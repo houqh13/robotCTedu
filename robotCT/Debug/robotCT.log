@@ -1,21 +1,20 @@
-﻿生成启动时间为 2019/9/10 14:52:04。
+﻿生成启动时间为 2019/9/16 1:48:56。
      1>项目“C:\Users\almighty\工作\课题\移动CT实验平台\code\robotCTedu\robotCT\robotCT.vcxproj”在节点 2 上(Build 个目标)。
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D _UNICODE /D UNICODE /D _AFXDLL /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\robotCT.pch" /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt robotCT.cpp robotCTDlg.cpp
-         robotCTDlg.cpp
-     1>c:\users\almighty\工作\课题\移动ct实验平台\code\robotctedu\robotct\robotctdlg.cpp(200): warning C4018: “<”: 有符号/无符号不匹配
-     1>c:\users\almighty\工作\课题\移动ct实验平台\code\robotctedu\robotct\robotctdlg.cpp(220): warning C4018: “<”: 有符号/无符号不匹配
-     1>c:\users\almighty\工作\课题\移动ct实验平台\code\robotctedu\robotct\robotctdlg.cpp(240): warning C4018: “<”: 有符号/无符号不匹配
-     1>c:\users\almighty\工作\课题\移动ct实验平台\code\robotctedu\robotct\robotctdlg.cpp(260): warning C4018: “<”: 有符号/无符号不匹配
-     1>c:\users\almighty\工作\课题\移动ct实验平台\code\robotctedu\robotct\robotctdlg.cpp(280): warning C4018: “<”: 有符号/无符号不匹配
-     1>c:\users\almighty\工作\课题\移动ct实验平台\code\robotctedu\robotct\robotctdlg.cpp(300): warning C4018: “<”: 有符号/无符号不匹配
-     1>c:\users\almighty\工作\课题\移动ct实验平台\code\robotctedu\robotct\robotctdlg.cpp(418): warning C4018: “<”: 有符号/无符号不匹配
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D _UNICODE /D UNICODE /D _AFXDLL /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\robotCT.pch" /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt AsyncClientSocket.cpp AsyncServerSocket.cpp WorkThread.cpp robotCT.cpp robotCTDlg.cpp
+         WorkThread.cpp
          正在生成代码...
          正在编译...
-         robotCT.cpp
+         AsyncServerSocket.cpp
+         AsyncClientSocket.cpp
          正在生成代码...
+         正在跳过...(未检测到相关更改)
+         robotCTDlg.cpp
+         robotCT.cpp
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\almighty\工作\课题\移动CT实验平台\code\robotCTedu\Debug\robotCT.exe" /INCREMENTAL /NOLOGO /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /manifestinput:"C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\Include\Manifest\dpiaware.manifest" /DEBUG /PDB:"C:\Users\almighty\工作\课题\移动CT实验平台\code\robotCTedu\Debug\robotCT.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /ENTRY:"wWinMainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\almighty\工作\课题\移动CT实验平台\code\robotCTedu\Debug\robotCT.lib" /MACHINE:X86 Debug\robotCT.res
+         Debug\AsyncClientSocket.obj
+         Debug\AsyncServerSocket.obj
          Debug\ExpressionDlg.obj
          Debug\robotCT.obj
          Debug\robotCTDlg.obj
@@ -26,4 +25,4 @@
 
 生成成功。
 
-已用时间 00:00:02.43
+已用时间 00:00:02.23
