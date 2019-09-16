@@ -59,7 +59,7 @@ typedef struct __POSE_Q__
 	double q2;
 	double q3;
 	double w;		// 外部轴(导轨)
-	int index;		// 成像位置序号(从0开始, -1为不成像的过渡点)
+	int index;		// 成像位置序号(从1开始, 0为不成像的过渡点)
 	__POSE_Q__(double x, double y, double z, double q0, double q1, double q2, double q3, double w, int index)
 	{
 		this->x = x;
@@ -72,7 +72,7 @@ typedef struct __POSE_Q__
 		this->w = w;
 		this->index = index;
 	}
-	__POSE_Q__(POSE_R pose_r, double w = 0.0, int index = -1)
+	__POSE_Q__(POSE_R pose_r, double w = 0.0, int index = 0)
 	{
 		x = pose_r.x;
 		y = pose_r.y - w;
@@ -131,11 +131,11 @@ typedef struct __POSE_Q__
 #define SERVER_PORT			6000
 
 // 网络通信协议
-#define PROTOCAL_CONNECT			"a0"
 #define PROTOCAL_ROBOT_MOVE			"RM\r"
 #define	PROTOCAL_ROBOT_REACH		"RR\r"
 #define	PROTOCAL_DETECTOR_SHOW		"DS\r"
 #define	PROTOCAL_DETECTOR_FINISH	"DF\r"
+#define PROTOCAL_ALL_CLEAR			"AC\r"
 
 // 缓冲区长度
 #define BUFFER_SERIAL_RECEIVE	7
@@ -173,12 +173,17 @@ typedef struct __POSE_Q__
 #define WM_THREADTIMER		WM_USER + 0x21
 #define WM_START			WM_USER + 0x22
 #define	WM_SHOW				WM_USER + 0x23
+#define WM_ALLCLEAR			WM_USER + 0x24
 
 
 /*********************其他定义**********************/
 
 // 错误消息参数
 #define	SOCKET_INITIAL		201		// 套接字初始化错误
+
+// 定时器参数
+#define	TIMER_ID_COMM		1
+#define	TIMER_DOT_COMM		20
 
 // 精度定义(用于浮点数转字符串)
 #define	PRECISION_1			1

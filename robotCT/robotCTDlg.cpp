@@ -387,7 +387,7 @@ LRESULT CrobotCTDlg::OnConnect(WPARAM wParam, LPARAM lParam)
 
 	if (b_connectSerial && b_connectRobot[0] && b_connectRobot[1] && b_connectDetector)
 	{
-		SetTimer(1, 20, NULL);
+		SetTimer(TIMER_ID_COMM, TIMER_DOT_COMM, NULL);
 		th_workThread->PostThreadMessage(WM_START, (WPARAM)&vec_poseQ[0], NULL);
 	}
 
@@ -400,8 +400,8 @@ LRESULT CrobotCTDlg::OnReach(WPARAM wParam, LPARAM lParam)
 	if (i_progress == vec_poseQ.size() - 1)
 	{
 		// 完成扫描, 清理工作线程
-		KillTimer(1);
-		th_workThread->PostThreadMessage(WM_QUIT, NULL, NULL);
+		KillTimer(TIMER_ID_COMM);
+		th_workThread->PostThreadMessage(WM_ALLCLEAR, NULL, NULL);
 		MessageBox(_T("扫描完成！"), _T("Success"), MB_OK | MB_ICONINFORMATION);
 		// 重置相关参数
 		i_progress = 0;
@@ -420,7 +420,7 @@ LRESULT CrobotCTDlg::OnReach(WPARAM wParam, LPARAM lParam)
 	else
 	{
 		// 未完成扫描
-		if (vec_poseQ[i_progress].index == -1)
+		if (vec_poseQ[i_progress].index == 0)
 		{
 			// 非成像位置, 直接运动到下一位置
 			this->PostMessage(WM_FINISH, NULL, NULL);
@@ -450,7 +450,7 @@ void CrobotCTDlg::OnTimer(UINT_PTR nIDEvent)
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
 	switch (nIDEvent)
 	{
-	case 1:
+	case TIMER_ID_COMM:
 		th_workThread->PostThreadMessage(WM_THREADTIMER, NULL, NULL);
 		break;
 	default:
@@ -475,7 +475,7 @@ void CrobotCTDlg::SetupPos()
 	{
 		double guidepos = (vec_poseQ[i].y >= 0 ? 1 : -1) * 
 			ceil(min(abs(1.1 * vec_poseR[i].y), GUIDE_MAX_SIDE) / GUIDE_GAP);
-		poses_q.push_back(POSE_Q(vec_poseR[i], guidepos * GUIDE_GAP, i));
+		poses_q.push_back(POSE_Q(vec_poseR[i], guidepos * GUIDE_GAP, i + 1));
 	}
 	// 下轨道过渡点
 	poses_q.push_back(POSE_Q(

@@ -160,6 +160,7 @@ BEGIN_MESSAGE_MAP(CWorkThread, CWinThread)
 	ON_THREAD_MESSAGE(WM_THREADTIMER, OnThreadTimer)
 	ON_THREAD_MESSAGE(WM_START, OnStart)
 	ON_THREAD_MESSAGE(WM_SHOW, OnShow)
+	ON_THREAD_MESSAGE(WM_ALLCLEAR, OnAllClear)
 END_MESSAGE_MAP()
 
 
@@ -243,6 +244,15 @@ void CWorkThread::OnShow(WPARAM wParam, LPARAM lParam)
 	sprintf_s(s, sizeof(s), "%d", (int)wParam);
 	m_socDetector.Send(PROTOCAL_DETECTOR_SHOW, strlen(PROTOCAL_DETECTOR_SHOW));
 	m_socDetector.Send(s, strlen(s));
+}
+
+
+void CWorkThread::OnAllClear(WPARAM wParam, LPARAM lParam)
+{
+	m_socRobot[0].Send(PROTOCAL_ALL_CLEAR, strlen(PROTOCAL_ALL_CLEAR));
+	m_socRobot[1].Send(PROTOCAL_ALL_CLEAR, strlen(PROTOCAL_ALL_CLEAR));
+	m_socDetector.Send(PROTOCAL_ALL_CLEAR, strlen(PROTOCAL_ALL_CLEAR));
+	this->PostThreadMessage(WM_QUIT, NULL, NULL);
 }
 
 

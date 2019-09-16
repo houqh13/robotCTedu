@@ -1,16 +1,16 @@
-﻿生成启动时间为 2019/9/16 1:48:56。
+﻿生成启动时间为 2019/9/16 14:04:52。
      1>项目“C:\Users\almighty\工作\课题\移动CT实验平台\code\robotCTedu\robotCT\robotCT.vcxproj”在节点 2 上(Build 个目标)。
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D _UNICODE /D UNICODE /D _AFXDLL /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\robotCT.pch" /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt AsyncClientSocket.cpp AsyncServerSocket.cpp WorkThread.cpp robotCT.cpp robotCTDlg.cpp
-         WorkThread.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D _UNICODE /D UNICODE /D _AFXDLL /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\robotCT.pch" /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt AsyncClientSocket.cpp AsyncServerSocket.cpp ExpressionDlg.cpp WorkThread.cpp robotCT.cpp robotCTDlg.cpp
+         robotCTDlg.cpp
          正在生成代码...
          正在编译...
+         robotCT.cpp
+         WorkThread.cpp
+         ExpressionDlg.cpp
          AsyncServerSocket.cpp
          AsyncClientSocket.cpp
          正在生成代码...
-         正在跳过...(未检测到相关更改)
-         robotCTDlg.cpp
-         robotCT.cpp
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\almighty\工作\课题\移动CT实验平台\code\robotCTedu\Debug\robotCT.exe" /INCREMENTAL /NOLOGO /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /manifestinput:"C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\Include\Manifest\dpiaware.manifest" /DEBUG /PDB:"C:\Users\almighty\工作\课题\移动CT实验平台\code\robotCTedu\Debug\robotCT.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /ENTRY:"wWinMainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\almighty\工作\课题\移动CT实验平台\code\robotCTedu\Debug\robotCT.lib" /MACHINE:X86 Debug\robotCT.res
          Debug\AsyncClientSocket.obj
@@ -25,4 +25,4 @@
 
 生成成功。
 
-已用时间 00:00:02.23
+已用时间 00:00:06.39

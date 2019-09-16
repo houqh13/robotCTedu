@@ -44,6 +44,7 @@ public:
 	afx_msg void OnThreadTimer(WPARAM wParam, LPARAM lParam);	// 主线程定时器消息响应函数
 	afx_msg void OnStart(WPARAM wParam, LPARAM lParam);			// 开始运动消息响应函数
 	afx_msg void OnShow(WPARAM wParam, LPARAM lParam);			// 通知平板显示消息响应函数
+	afx_msg void OnAllClear(WPARAM wParam, LPARAM lParam);		// 结束线程消息响应函数
 };
 
 
