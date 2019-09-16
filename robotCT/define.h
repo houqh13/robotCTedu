@@ -92,7 +92,7 @@ typedef struct __POSE_Q__
 
 #define	GUIDE_MAX_SIDE	230.0			// 导轨单侧最大运行长度
 #define	GUIDE_POS_SIDE	5				// 导轨单侧可运行位置数(减少导轨运动次数, 以机械臂运动代替频繁的导轨运动)
-#define	GUIDE_GAP		GUIDE_MAX_SIDE / GUIDE_POS_SIDE
+#define	GUIDE_GAP		(GUIDE_MAX_SIDE / GUIDE_POS_SIDE)
 
 
 /*****************输入表达式对话框******************/
@@ -127,7 +127,8 @@ typedef struct __POSE_Q__
 // 串口通信协议
 
 
-// 网络通信端口
+// 网络通信地址
+#define SERVER_IP			L"192.168.2.8"
 #define SERVER_PORT			6000
 
 // 网络通信协议

@@ -28,7 +28,7 @@ void CAsyncClientSocket::OnReceive(int nErrorCode)
 	CrobotCTDlg* mainDlg = (CrobotCTDlg*)(AfxGetApp()->m_pMainWnd);
 	if (strcmp(recvData, PROTOCAL_ROBOT_REACH) && (deviceID == DEVICE_ROBOT_0 || deviceID == DEVICE_ROBOT_1))
 	{
-		mainDlg->th_workThread->m_bSocketReached[deviceID - DEVICE_ROBOT_0] = true;
+		mainDlg->m_bSocketReached[deviceID - DEVICE_ROBOT_0] = true;
 	}
 	else if (strcmp(recvData, PROTOCAL_DETECTOR_FINISH) && (deviceID == DEVICE_DETECTOR))
 	{

@@ -350,37 +350,37 @@ bool CExpressionDlg::calcExpression()
 		{
 			// 首位或前一位为左括号
 			flag = false;
-			if (vec_expression[0] < EXP_P)					// 数字
+			if (vec_expression[i] < EXP_P)					// 数字
 			{
 				stk_value.pop();
 				temp.fill(vec_expression[0]);
 				stk_value.push(temp);
 			}
-			else if (vec_expression[0] == EXP_THE)			// theta
+			else if (vec_expression[i] == EXP_THE)			// theta
 			{
 				stk_value.pop();
 				stk_value.push(ary_the);
 			}
-			else if (vec_expression[0] == EXP_SIN)			// sin
+			else if (vec_expression[i] == EXP_SIN)			// sin
 			{
 				stk_value.pop();
 				stk_value.push(ary_sin);
 			}
-			else if (vec_expression[0] == EXP_COS)			// cos
+			else if (vec_expression[i] == EXP_COS)			// cos
 			{
 				stk_value.pop();
 				stk_value.push(ary_cos);
 			}
-			else if (vec_expression[0] == EXP_TAN)			// tan
+			else if (vec_expression[i] == EXP_TAN)			// tan
 			{
 				stk_value.pop();
 				stk_value.push(ary_tan);
 			}
-			else if (vec_expression[0] <= EXP_SUB)			// 加号/减号/小数点
+			else if (vec_expression[i] <= EXP_SUB)			// 加号/减号/小数点
 			{
 				stk_operator.push(vec_expression[0]);
 			}
-			else if (vec_expression[0] == EXP_LBR)			// 左括号
+			else if (vec_expression[i] == EXP_LBR)			// 左括号
 			{
 				stk_value.pop();
 				stk_operator.push(EXP_LBR);
@@ -416,7 +416,7 @@ bool CExpressionDlg::calcExpression()
 			}
 			else if (vec_expression[i] == EXP_P)			// 小数点
 			{
-				if (stk_operator.top() == EXP_P)
+				if (!stk_operator.empty() && stk_operator.top() == EXP_P)
 				{
 					return false;
 				}
@@ -479,6 +479,10 @@ bool CExpressionDlg::calcExpression()
 			}
 			else if (vec_expression[i] == EXP_RBR)			// 右括号
 			{
+				if (stk_operator.empty())
+				{
+					return false;
+				}
 				if (vec_expression[i - 1] >= EXP_P && vec_expression[i - 1] <= EXP_LBR)
 				{
 					return false;
@@ -555,8 +559,8 @@ void CExpressionDlg::calculate()
 	std::array<double, NUMBER_ANGLE> temp;
 	if (opr == EXP_P)
 	{
-		double integer = first[0];
-		double decimal = second[0];
+		double decimal = first[0];
+		double integer = second[0];
 		while (decimal >= 1)
 		{
 			decimal /= 10;

@@ -68,12 +68,13 @@ BOOL CWorkThread::InitInstance()
 		PostMessage(GetMainWnd()->GetSafeHwnd(), WM_ERROR, (WPARAM)SOCKET_INITIAL, (LPARAM)GetLastError());
 		return FALSE;
 	}
-	if (!m_socServer.Create(SERVER_PORT, SOCK_STREAM, FD_ACCEPT) || !m_socServer.Listen())
+	if (!m_socServer.Create(SERVER_PORT, SOCK_STREAM, FD_ACCEPT | FD_CLOSE, SERVER_IP))
 	{
 		PostMessage(GetMainWnd()->GetSafeHwnd(), WM_ERROR, (WPARAM)DEVICE_SERVER, (LPARAM)GetLastError());
 		m_socServer.Close();
 		return FALSE;
 	}
+	m_socServer.Listen();
 	/*while (m_socRobot[0].m_hSocket && m_socRobot[1].m_hSocket && m_socDetector.m_hSocket == NULL)
 	{
 		CAsyncSocket tempsoc;

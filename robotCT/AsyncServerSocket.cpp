@@ -33,21 +33,21 @@ void CAsyncServerSocket::OnAccept(int nErrorCode)
 		Accept(tempsoc, (SOCKADDR*)&tempaddr, &len);
 		tempsoc.AsyncSelect(FD_READ | FD_WRITE | FD_CLOSE);
 		CrobotCTDlg* mainDlg = (CrobotCTDlg*)(AfxGetApp()->m_pMainWnd);
-		switch (tempaddr.sin_addr.S_un.S_addr & 0xFF)
+		switch (tempaddr.sin_addr.S_un.S_un_b.s_b4)
 		{
-		case 1:
-			mainDlg->th_workThread->m_socRobot[0].Attach(tempsoc.Detach());
-			mainDlg->th_workThread->m_socRobot[0].deviceID = DEVICE_ROBOT_0;
+		case 160:
+			mainDlg->m_socRobot[0].Attach(tempsoc.Detach());
+			mainDlg->m_socRobot[0].deviceID = DEVICE_ROBOT_0;
 			mainDlg->PostMessage(WM_CONNECT, (WPARAM)DEVICE_ROBOT_0, NULL);
 			break;
-		case 2:
-			mainDlg->th_workThread->m_socRobot[1].Attach(tempsoc.Detach());
-			mainDlg->th_workThread->m_socRobot[1].deviceID = DEVICE_ROBOT_1;
+		case 161:
+			mainDlg->m_socRobot[1].Attach(tempsoc.Detach());
+			mainDlg->m_socRobot[1].deviceID = DEVICE_ROBOT_1;
 			mainDlg->PostMessage(WM_CONNECT, (WPARAM)DEVICE_ROBOT_1, NULL);
 			break;
 		case 13:
-			mainDlg->th_workThread->m_socDetector.Attach(tempsoc.Detach());
-			mainDlg->th_workThread->m_socDetector.deviceID = DEVICE_DETECTOR;
+			mainDlg->m_socDetector.Attach(tempsoc.Detach());
+			mainDlg->m_socDetector.deviceID = DEVICE_DETECTOR;
 			mainDlg->PostMessage(WM_CONNECT, (WPARAM)DEVICE_DETECTOR, NULL);
 			break;
 		default:
